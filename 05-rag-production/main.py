@@ -47,24 +47,31 @@ def build_index(chunks: list[dict], model: SentenceTransformer):
     return embeddings, bm25
 
 
+RAW_VECTOR_CONFIDENCE_FLOOR = 0.3
+
+
 def hybrid_search(query: str, chunks: list[dict], embeddings, bm25, model, top_k=5):
     q_emb = model.encode([query], normalize_embeddings=True)[0]
-    vector_scores = embeddings @ q_emb
+    vector_scores = embeddings @ q_emb  # raw cosine similarity, not re-scaled per query
     bm25_scores = np.array(bm25.get_scores(query.lower().split()))
-    # normalize both to 0..1 so they combine fairly
+    # normalize both to 0..1 so they combine fairly for RANKING; the raw
+    # vector_scores are kept separately because per-query min-max
+    # normalization always stretches the top hit toward 1.0 even when
+    # nothing in the corpus is actually relevant, so it can't be used to
+    # decide whether to abstain — only the raw cosine similarity can.
     def norm(x):
         rng = x.max() - x.min()
         return (x - x.min()) / rng if rng > 0 else np.zeros_like(x)
     combined = 0.5 * norm(vector_scores) + 0.5 * norm(bm25_scores)
     ranked_idx = np.argsort(combined)[::-1][:top_k]
     return [
-        {**chunks[i], "score": float(combined[i])}
+        {**chunks[i], "score": float(combined[i]), "raw_vector_score": float(vector_scores[i])}
         for i in ranked_idx
     ]
 
 
 def answer_question(client: genai.Client, question: str, retrieved: list[dict]) -> str:
-    if not retrieved or retrieved[0]["score"] < 0.05:
+    if not retrieved or retrieved[0]["raw_vector_score"] < RAW_VECTOR_CONFIDENCE_FLOOR:
         return "I don't have enough relevant information in the indexed docs to answer that confidently."
     context = "\n\n".join(
         f"[{i+1}] (source: {c['source']})\n{c['text']}" for i, c in enumerate(retrieved)

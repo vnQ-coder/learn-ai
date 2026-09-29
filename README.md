@@ -22,5 +22,5 @@ README, run its `main.py`.
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-export ANTHROPIC_API_KEY=sk-...   # required for modules 05, 06, 08, 09
+export GEMINI_API_KEY=...   # required for modules 03, 05, 06, 07, 09
 ```

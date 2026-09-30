@@ -30,6 +30,8 @@ else:
                     mod.run_conversation(window_size=10)
                 st.code(buf.getvalue())
             except Exception as e:
+                if buf.getvalue():
+                    st.code(buf.getvalue())
                 st.error(f"Gemini call failed: {e}")
     with col2:
         if st.button("Run with window_size=1 (forgets)"):
@@ -39,4 +41,6 @@ else:
                     mod.run_conversation(window_size=1)
                 st.code(buf.getvalue())
             except Exception as e:
+                if buf.getvalue():
+                    st.code(buf.getvalue())
                 st.error(f"Gemini call failed: {e}")

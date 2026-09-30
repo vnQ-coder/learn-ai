@@ -20,12 +20,17 @@ st.write(
 mod = load_module("08-agents-talking")
 if st.button("Run negotiation"):
     server = mod.start_budget_checker()
+    buf = io.StringIO()
     try:
         time.sleep(0.2)
-        buf = io.StringIO()
-        with redirect_stdout(buf):
-            mod.negotiate(initial_amount=2000)
-        st.code(buf.getvalue())
+        try:
+            with redirect_stdout(buf):
+                mod.negotiate(initial_amount=2000)
+            st.code(buf.getvalue())
+        except Exception as e:
+            if buf.getvalue():
+                st.code(buf.getvalue())
+            st.error(f"Negotiation failed: {e}")
     finally:
         server.shutdown()
         server.server_close()

@@ -23,12 +23,14 @@ else:
     mod = load_module("07-mcp-tool-use")
     question = st.text_input("Question", value="Where is my order 7788?")
     if st.button("Run"):
+        buf = io.StringIO()
         try:
             from google import genai
             client = genai.Client()
-            buf = io.StringIO()
             with redirect_stdout(buf):
                 mod.run_tool_loop(client, question)
             st.code(buf.getvalue())
         except Exception as e:
+            if buf.getvalue():
+                st.code(buf.getvalue())
             st.error(f"Gemini call failed: {e}")

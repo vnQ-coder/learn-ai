@@ -41,8 +41,11 @@ else:
             for e in board.read_all():
                 st.write(f"**[{e['agent']}] {e['key']}**: {e['value']}")
 
-            final = next(e["value"] for e in board.read_all() if e["key"] == "final_report")
-            st.subheader("Final report")
-            st.write(final)
+            final = next((e["value"] for e in board.read_all() if e["key"] == "final_report"), None)
+            if final:
+                st.subheader("Final report")
+                st.write(final)
+            else:
+                st.warning("The pipeline didn't produce a final report — check the stages above for what happened.")
         except Exception as e:
             st.error(f"Gemini call failed: {e}")

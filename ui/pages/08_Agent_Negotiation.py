@@ -26,3 +26,4 @@ if st.button("Run negotiation"):
         st.code(buf.getvalue())
     finally:
         server.shutdown()
+        server.server_close()

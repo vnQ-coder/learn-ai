@@ -23,7 +23,7 @@ else:
         return SentenceTransformer("all-MiniLM-L6-v2")
 
     @st.cache_resource
-    def get_index():
+    def get_index_05():
         folder = str(Path(__file__).resolve().parent.parent / "example_docs")
         docs = mod.load_markdown_files(folder)
         chunks = [c for path, text in docs for c in mod.chunk_text(path, text)]
@@ -35,7 +35,7 @@ else:
     if st.button("Run RAG pipeline"):
         try:
             from google import genai
-            chunks, embeddings, bm25, model = get_index()
+            chunks, embeddings, bm25, model = get_index_05()
             retrieved = mod.hybrid_search(question, chunks, embeddings, bm25, model)
             st.subheader("Retrieved chunks")
             for r in retrieved:

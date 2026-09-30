@@ -23,7 +23,7 @@ else:
         return SentenceTransformer("all-MiniLM-L6-v2")
 
     @st.cache_resource
-    def get_index():
+    def get_index_06():
         folder = str(Path(__file__).resolve().parent.parent / "example_docs")
         docs = mod.load_markdown_files(folder)
         chunks = [c for path, text in docs for c in mod.chunk_text(path, text)]
@@ -33,7 +33,7 @@ else:
 
     def run_question(question):
         from google import genai
-        chunks, embeddings, bm25, model = get_index()
+        chunks, embeddings, bm25, model = get_index_06()
         retrieved = mod.hybrid_search(question, chunks, embeddings, bm25, model)
         if retrieved:
             st.write(f"top raw_vector_score={retrieved[0]['raw_vector_score']:.3f}")

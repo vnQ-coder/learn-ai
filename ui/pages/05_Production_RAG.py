@@ -1,7 +1,9 @@
 import os
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+_ui_dir = str(Path(__file__).resolve().parent.parent)
+if _ui_dir not in sys.path:
+    sys.path.insert(0, _ui_dir)
 
 import streamlit as st
 from sentence_transformers import SentenceTransformer

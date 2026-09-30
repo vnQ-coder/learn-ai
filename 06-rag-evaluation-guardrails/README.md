@@ -14,6 +14,13 @@ export GEMINI_API_KEY=...
 python main.py <path-to-a-folder-of-.md-files>
 ```
 
+Note: the built-in `TEST_QUESTIONS` include "how is the curriculum
+organized?", which only makes sense against a curriculum-style corpus.
+Point the folder argument at docs where that question is meaningful —
+e.g. this repo itself (`~/Desktop/ai-apps/learning`), since its
+top-level and per-module READMEs are real markdown describing how the
+curriculum is organized.
+
 **Expected output:** two test questions run automatically — one
 answerable from the corpus (gets a real cited answer), one
 intentionally unanswerable (gets a `REFUSED: ...` result instead of a

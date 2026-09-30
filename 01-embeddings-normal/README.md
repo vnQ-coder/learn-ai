@@ -4,10 +4,11 @@
 literal word overlap (TF-IDF + cosine similarity) — the same technique
 behind most out-of-the-box "search" boxes.
 
-**Concept:** TF-IDF only "sees" shared tokens. A query like `"cancel my
-order"` scores near zero against the ticket "Cancel my subscription
-immediately, I was double charged" if the exact words don't line up
-well enough, even though a human would call that an obvious match.
+**Concept:** TF-IDF only "sees" shared tokens. A query like `"I was
+billed two times"` scores 0.0 against the ticket "Charged twice for
+the same order, need the extra charge reversed" because none of the
+query's words literally appear in that ticket, even though a human
+would call that an obvious match.
 
 **Run:**
 ```bash
@@ -15,6 +16,7 @@ python main.py
 ```
 
 **Expected output:** for each of the 4 test queries, the top-3 ranked
-tickets with similarity scores. At least two queries (`"cancel my
-order"`, `"money taken twice"`) will show top scores near 0.0, marked
-`MISS (score ~0)` — this is the literal-match ceiling module 02 fixes.
+tickets with similarity scores. All 4 queries are genuine paraphrases
+with zero literal token overlap with their intended ticket, so every
+one shows a top score of 0.000, marked `MISS (score ~0)` — this is the
+literal-match ceiling module 02 fixes.

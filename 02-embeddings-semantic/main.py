@@ -28,15 +28,18 @@ TICKETS = [
 ]
 
 QUERIES = [
-    "cancel my order",
-    "money taken twice",
-    "can't log in",
-    "package is late",
+    "I was billed two times",  # paraphrase of "Charged twice for the same order..."
+    "parcel hasn't shown up",  # paraphrase of "Order #9012 never arrived..."
+    "I keep getting bounced out when I try to log in",  # paraphrase of "Login page shows a 500 error..."
+    "delivery is taking forever",  # paraphrase of "Shipping is delayed for order #7788..."
 ]
 
 
 def tfidf_top1(corpus, queries):
-    vectorizer = TfidfVectorizer()
+    # stop_words='english' keeps common words like "I"/"was"/"the" from
+    # creating accidental token overlap that would otherwise mask a real
+    # TF-IDF miss (e.g. "I was billed two times" vs "I was double charged").
+    vectorizer = TfidfVectorizer(stop_words="english")
     doc_vectors = vectorizer.fit_transform(corpus)
     out = {}
     for q in queries:

@@ -14,7 +14,7 @@ st.title("06 — RAG Evaluation & Guardrails")
 st.write("**Scenario:** grading the RAG bot's own answers before trusting them.")
 
 if not os.environ.get("GEMINI_API_KEY"):
-    st.warning("Set a Gemini API key in the sidebar to run this module.")
+    st.warning("Set a Gemini API key on the home page (app) sidebar to run this module.")
 else:
     mod = load_module("06-rag-evaluation-guardrails")
 

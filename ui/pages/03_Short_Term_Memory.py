@@ -18,7 +18,7 @@ st.write(
 )
 
 if not os.environ.get("GEMINI_API_KEY"):
-    st.warning("Set a Gemini API key in the sidebar to run this module.")
+    st.warning("Set a Gemini API key on the home page (app) sidebar to run this module.")
 else:
     mod = load_module("03-memory-short-term")
     col1, col2 = st.columns(2)

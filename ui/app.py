@@ -24,7 +24,11 @@ with st.sidebar:
         "Paste a Gemini API key for this session",
         value=st.session_state.gemini_api_key,
         type="password",
-        help="Used only in memory for this session; never written to disk.",
+        help=(
+            "Used only in memory for this local server process; never written to disk. "
+            "Note: if you ever run this app on a shared host, this key would be visible "
+            "to other concurrent visitors — it's designed for local personal use."
+        ),
     )
     if key_input:
         st.session_state.gemini_api_key = key_input

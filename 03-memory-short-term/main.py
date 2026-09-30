@@ -52,7 +52,7 @@ def ask_gemini(client: genai.Client, memory: SlidingWindowMemory, user_msg: str)
         model=MODEL,
         contents=memory.to_gemini_contents(),
     )
-    reply = resp.text
+    reply = resp.text or ""
     memory.add("model", reply)
     return reply
 
@@ -77,7 +77,10 @@ def main():
     run_conversation(window_size=10)
     # Small window: the early "business class" turn is evicted before the
     # final question, so the model can no longer answer it correctly.
-    run_conversation(window_size=2)
+    # window_size=1 (not 2) so only the single most recent turn survives —
+    # with window_size=2 the model's own prior reply can still recap the
+    # dropped fact, masking the forgetting effect this demo is meant to show.
+    run_conversation(window_size=1)
 
 
 if __name__ == "__main__":

@@ -15,5 +15,9 @@ python main.py
 
 **Expected output:** two conversations run back to back. With
 `window_size=10` the final answer correctly recalls "business class."
-With `window_size=2`, the printed buffer size shows only 2 turns held
+With `window_size=1`, the printed buffer size shows only 1 turn held
 at the end, and the final answer fails to recall the earlier detail.
+`window_size=1` (rather than 2) is used for the small-window demo
+because with a window of 2 the model's own prior reply can still recap
+the dropped fact, masking the forgetting effect this demo is meant to
+show.

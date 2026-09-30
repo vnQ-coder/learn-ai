@@ -48,13 +48,20 @@ def run_tool_loop(client: genai.Client, user_question: str):
         config=CONFIG,
     )
 
-    part = resp.candidates[0].content.parts[0]
-    if not part.function_call:
+    calls = resp.function_calls
+    if not calls:
         print(f"Final answer (no tool needed): {resp.text}")
         return
 
-    call = part.function_call
-    call_args = dict(call.args)
+    call = calls[0]
+    if call.name != "get_order_status":
+        print(f"Model requested an unsupported tool: {call.name!r}; stopping.")
+        return
+
+    call_args = dict(call.args) if call.args else {}
+    if "order_id" not in call_args:
+        print(f"Model's tool call is missing 'order_id': {call_args}; stopping.")
+        return
     print(f"Model requested tool call: {call.name}({call_args})")
 
     tool_result = get_order_status(call_args["order_id"])
@@ -71,7 +78,12 @@ def run_tool_loop(client: genai.Client, user_question: str):
     ]
 
     final = client.models.generate_content(model=MODEL, contents=contents, config=CONFIG)
-    print(f"Final answer: {final.text}")
+    if final.function_calls:
+        # Don't build a second tool-call loop here; just avoid crashing on
+        # a missing/empty final.text if the model asks for the tool again.
+        print(f"Model asked for another tool call instead of a final answer: {final.text or '(model returned no final text)'}")
+        return
+    print(f"Final answer: {final.text or '(model returned no final text)'}")
 
 
 def main():

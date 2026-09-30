@@ -71,7 +71,7 @@ def hybrid_search(query: str, chunks: list[dict], embeddings, bm25, model, top_k
 
 
 def answer_question(client: genai.Client, question: str, retrieved: list[dict]) -> str:
-    if not retrieved or retrieved[0]["raw_vector_score"] < RAW_VECTOR_CONFIDENCE_FLOOR:
+    if not retrieved or max(c["raw_vector_score"] for c in retrieved) < RAW_VECTOR_CONFIDENCE_FLOOR:
         return "I don't have enough relevant information in the indexed docs to answer that confidently."
     context = "\n\n".join(
         f"[{i+1}] (source: {c['source']})\n{c['text']}" for i, c in enumerate(retrieved)
@@ -82,7 +82,7 @@ def answer_question(client: genai.Client, question: str, retrieved: list[dict]) 
         f"Sources:\n{context}\n\nQuestion: {question}"
     )
     resp = client.models.generate_content(model=MODEL, contents=prompt)
-    return resp.text
+    return resp.text or ""
 
 
 def main():
@@ -106,7 +106,7 @@ def main():
     retrieved = hybrid_search(question, chunks, embeddings, bm25, model)
     print("Retrieved chunks:")
     for r in retrieved:
-        print(f"  score={r['score']:.3f}  {r['source']}")
+        print(f"  raw_vector_score={r['raw_vector_score']:.3f}  {r['source']}")
 
     client = genai.Client()
     answer = answer_question(client, question, retrieved)

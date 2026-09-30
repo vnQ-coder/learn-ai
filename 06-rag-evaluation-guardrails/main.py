@@ -77,12 +77,13 @@ def check_claims_supported(client: genai.Client, answer: str, retrieved: list[di
         f"SOURCES:\n{context}\n\nANSWER:\n{answer}"
     )
     resp = client.models.generate_content(model=MODEL, contents=prompt)
-    verdict = resp.text.strip()
-    return verdict.startswith("SUPPORTED"), verdict
+    verdict = (resp.text or "").strip()
+    normalized = verdict.strip("*").upper()
+    return normalized.startswith("SUPPORTED"), verdict
 
 
 def answer_with_guardrails(client: genai.Client, question: str, retrieved: list[dict]) -> str:
-    if not retrieved or retrieved[0]["raw_vector_score"] < RAW_VECTOR_CONFIDENCE_FLOOR:
+    if not retrieved or max(c["raw_vector_score"] for c in retrieved) < RAW_VECTOR_CONFIDENCE_FLOOR:
         return "REFUSED: retrieval confidence too low to answer safely."
 
     context = "\n\n".join(f"[{i+1}] {c['text']}" for i, c in enumerate(retrieved))
@@ -92,7 +93,7 @@ def answer_with_guardrails(client: genai.Client, question: str, retrieved: list[
         f"Sources:\n{context}\n\nQuestion: {question}"
     )
     resp = client.models.generate_content(model=MODEL, contents=prompt)
-    answer = resp.text
+    answer = resp.text or ""
 
     supported, verdict = check_claims_supported(client, answer, retrieved)
     if not supported:
@@ -116,7 +117,15 @@ def main():
 
     folder = sys.argv[1]
     docs = load_markdown_files(folder)
+    if not docs:
+        print(f"No markdown files found under {folder}")
+        sys.exit(1)
+
     chunks = [c for path, text in docs for c in chunk_text(path, text)]
+    if not chunks:
+        print(f"No chunks produced from markdown files under {folder}")
+        sys.exit(1)
+
     model = SentenceTransformer("all-MiniLM-L6-v2")
     embeddings, bm25 = build_index(chunks, model)
     client = genai.Client()
@@ -124,7 +133,7 @@ def main():
     for q in TEST_QUESTIONS:
         retrieved = hybrid_search(q, chunks, embeddings, bm25, model)
         print(f"\nQuestion: {q}")
-        print(f"  top retrieval score: {retrieved[0]['score']:.3f}" if retrieved else "  no chunks retrieved")
+        print(f"  top raw_vector_score: {retrieved[0]['raw_vector_score']:.3f}" if retrieved else "  no chunks retrieved")
         result = answer_with_guardrails(client, q, retrieved)
         print(f"  Result: {result}")
 

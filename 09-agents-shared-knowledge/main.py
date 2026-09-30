@@ -31,7 +31,7 @@ class Blackboard:
 
 def call_gemini(client: genai.Client, prompt: str) -> str:
     resp = client.models.generate_content(model=MODEL, contents=prompt)
-    return resp.text
+    return resp.text or ""
 
 
 def researcher_agent(client: genai.Client, board: Blackboard, topic: str):

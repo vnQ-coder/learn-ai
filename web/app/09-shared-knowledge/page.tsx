@@ -16,7 +16,7 @@ export default function Page() {
     setError(null);
     setData(null);
     try {
-      setData(await apiPost<RunResponse>("/api/09/run", { topic }, true));
+      setData(await apiPost<RunResponse>("/api/09/run", { topic }));
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -30,7 +30,6 @@ export default function Page() {
       <p className="text-gray-600 mb-4">
         Scenario: a researcher, fact-checker, and writer agent collaborating through a shared knowledge store.
       </p>
-      <p className="text-sm text-gray-500 mb-4">Requires a Gemini API key — set it on the home page.</p>
       <input className="w-full border rounded px-3 py-2 mb-2" value={topic} onChange={(e) => setTopic(e.target.value)} />
       <button onClick={run} disabled={loading} className="bg-black text-white rounded px-4 py-2 disabled:opacity-50">
         {loading ? "Running..." : "Run pipeline"}

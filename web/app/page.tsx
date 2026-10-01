@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getApiKey, setApiKey } from "@/lib/api";
 
 const MODULES = [
   { slug: "01-embeddings-normal", title: "01 — Embeddings: Normal (TF-IDF)", blurb: "Keyword search over support tickets — and where it fails." },
@@ -17,37 +15,13 @@ const MODULES = [
 ];
 
 export default function Home() {
-  const [key, setKey] = useState("");
-
-  useEffect(() => {
-    setKey(getApiKey());
-  }, []);
-
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setKey(e.target.value);
-    setApiKey(e.target.value);
-  }
-
   return (
     <main className="max-w-3xl mx-auto p-8">
       <h1 className="text-3xl font-bold mb-2">AI Learning Curriculum</h1>
       <p className="text-gray-600 mb-6">
         Nine runnable lessons on production RAG, embeddings, agent memory, and multi-agent systems.
+        The Gemini API key is configured on the server (via its <code>.env</code> file) — nothing to set up here.
       </p>
-
-      <div className="border rounded-lg p-4 mb-8 bg-white shadow-sm">
-        <label className="block text-sm font-medium mb-1">Gemini API Key</label>
-        <input
-          type="password"
-          value={key}
-          onChange={handleChange}
-          placeholder="Paste a Gemini API key for this session"
-          className="w-full border rounded px-3 py-2 text-sm"
-        />
-        <p className="text-xs text-gray-500 mt-1">
-          Stored only in this browser tab&apos;s sessionStorage; sent as a header on each request; never persisted.
-        </p>
-      </div>
 
       <ul className="space-y-3">
         {MODULES.map((m) => (

@@ -15,7 +15,7 @@ export default function Page() {
     setError(null);
     setter(null);
     try {
-      const data = await apiPost<ConversationResponse>("/api/03/conversation", { window_size: windowSize }, true);
+      const data = await apiPost<ConversationResponse>("/api/03/conversation", { window_size: windowSize });
       setter(data.transcript);
     } catch (e) {
       setError((e as Error).message);
@@ -30,7 +30,6 @@ export default function Page() {
       <p className="text-gray-600 mb-4">
         Scenario: a support chatbot booking a flight, where an early detail must survive to the last turn.
       </p>
-      <p className="text-sm text-gray-500 mb-4">Requires a Gemini API key — set it on the home page.</p>
       <div className="flex gap-3 mb-4">
         <button onClick={() => run(10, setTranscript10, "10")} disabled={loading !== null} className="bg-black text-white rounded px-4 py-2 disabled:opacity-50">
           {loading === "10" ? "Running..." : "Run with window_size=10 (remembers)"}

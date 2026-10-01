@@ -15,7 +15,7 @@ export default function Page() {
     setError(null);
     setData(null);
     try {
-      setData(await apiPost<AskResponse>("/api/06/ask", { question: q }, true));
+      setData(await apiPost<AskResponse>("/api/06/ask", { question: q }));
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -27,7 +27,6 @@ export default function Page() {
     <main className="max-w-2xl mx-auto p-8">
       <h1 className="text-2xl font-bold mb-2">06 — RAG Evaluation &amp; Guardrails</h1>
       <p className="text-gray-600 mb-4">Scenario: grading the RAG bot&apos;s own answers before trusting them.</p>
-      <p className="text-sm text-gray-500 mb-4">Requires a Gemini API key — set it on the home page.</p>
       <input className="w-full border rounded px-3 py-2 mb-2" value={question} onChange={(e) => setQuestion(e.target.value)} />
       <div className="flex gap-3 mb-4">
         <button onClick={() => run(question)} disabled={loading} className="bg-black text-white rounded px-4 py-2 disabled:opacity-50">

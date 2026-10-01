@@ -1,8 +1,8 @@
 import io
+import os
 from contextlib import redirect_stdout
-from typing import Optional
 
-from fastapi import APIRouter, Header, HTTPException
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from ..module_loader import load_module
@@ -20,12 +20,13 @@ class AskResponse(BaseModel):
 
 
 @router.post("/ask", response_model=AskResponse)
-def ask(req: AskRequest, x_gemini_api_key: Optional[str] = Header(None)):
-    if not x_gemini_api_key:
-        raise HTTPException(status_code=400, detail="Missing X-Gemini-Api-Key header")
+def ask(req: AskRequest):
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        raise HTTPException(status_code=400, detail="GEMINI_API_KEY is not set on the server")
     try:
         from google import genai
-        client = genai.Client(api_key=x_gemini_api_key)
+        client = genai.Client(api_key=api_key)
         buf = io.StringIO()
         with redirect_stdout(buf):
             _mod.run_tool_loop(client, req.question)

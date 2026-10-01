@@ -1,9 +1,8 @@
 import io
 import os
 from contextlib import redirect_stdout
-from typing import Optional
 
-from fastapi import APIRouter, Header, HTTPException
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from ..module_loader import load_module
@@ -21,14 +20,10 @@ class ConversationResponse(BaseModel):
 
 
 @router.post("/conversation", response_model=ConversationResponse)
-def conversation(req: ConversationRequest, x_gemini_api_key: Optional[str] = Header(None)):
-    if not x_gemini_api_key:
-        raise HTTPException(status_code=400, detail="Missing X-Gemini-Api-Key header")
+def conversation(req: ConversationRequest):
+    if not os.environ.get("GEMINI_API_KEY"):
+        raise HTTPException(status_code=400, detail="GEMINI_API_KEY is not set on the server")
 
-    previous_gemini = os.environ.get("GEMINI_API_KEY")
-    previous_google = os.environ.get("GOOGLE_API_KEY")
-    os.environ["GEMINI_API_KEY"] = x_gemini_api_key
-    os.environ.pop("GOOGLE_API_KEY", None)
     try:
         buf = io.StringIO()
         with redirect_stdout(buf):
@@ -36,10 +31,3 @@ def conversation(req: ConversationRequest, x_gemini_api_key: Optional[str] = Hea
         return ConversationResponse(transcript=buf.getvalue())
     except Exception as e:
         raise HTTPException(status_code=502, detail=str(e))
-    finally:
-        if previous_gemini is None:
-            os.environ.pop("GEMINI_API_KEY", None)
-        else:
-            os.environ["GEMINI_API_KEY"] = previous_gemini
-        if previous_google is not None:
-            os.environ["GOOGLE_API_KEY"] = previous_google

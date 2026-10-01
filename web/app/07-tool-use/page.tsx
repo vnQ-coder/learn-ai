@@ -15,7 +15,7 @@ export default function Page() {
     setError(null);
     setTranscript(null);
     try {
-      const data = await apiPost<AskResponse>("/api/07/ask", { question }, true);
+      const data = await apiPost<AskResponse>("/api/07/ask", { question });
       setTranscript(data.transcript);
     } catch (e) {
       setError((e as Error).message);
@@ -28,7 +28,6 @@ export default function Page() {
     <main className="max-w-2xl mx-auto p-8">
       <h1 className="text-2xl font-bold mb-2">07 — MCP-Style Tool Use (Function Calling)</h1>
       <p className="text-gray-600 mb-4">Scenario: an agent answering order questions by calling a local tool instead of guessing.</p>
-      <p className="text-sm text-gray-500 mb-4">Requires a Gemini API key — set it on the home page.</p>
       <input className="w-full border rounded px-3 py-2 mb-2" value={question} onChange={(e) => setQuestion(e.target.value)} />
       <button onClick={run} disabled={loading} className="bg-black text-white rounded px-4 py-2 disabled:opacity-50">
         {loading ? "Running..." : "Run"}

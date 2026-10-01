@@ -1,6 +1,7 @@
+import os
 from typing import Optional
 
-from fastapi import APIRouter, Header, HTTPException
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from sentence_transformers import SentenceTransformer
 
@@ -25,14 +26,15 @@ class AskResponse(BaseModel):
 
 
 @router.post("/ask", response_model=AskResponse)
-def ask(req: AskRequest, x_gemini_api_key: Optional[str] = Header(None)):
-    if not x_gemini_api_key:
-        raise HTTPException(status_code=400, detail="Missing X-Gemini-Api-Key header")
+def ask(req: AskRequest):
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        raise HTTPException(status_code=400, detail="GEMINI_API_KEY is not set on the server")
     retrieved = _mod.hybrid_search(req.question, _chunks, _embeddings, _bm25, _model)
     top_score = retrieved[0]["raw_vector_score"] if retrieved else None
     try:
         from google import genai
-        client = genai.Client(api_key=x_gemini_api_key)
+        client = genai.Client(api_key=api_key)
         result = _mod.answer_with_guardrails(client, req.question, retrieved)
     except Exception as e:
         raise HTTPException(status_code=502, detail=str(e))

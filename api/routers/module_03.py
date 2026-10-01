@@ -25,8 +25,10 @@ def conversation(req: ConversationRequest, x_gemini_api_key: Optional[str] = Hea
     if not x_gemini_api_key:
         raise HTTPException(status_code=400, detail="Missing X-Gemini-Api-Key header")
 
-    previous = os.environ.get("GEMINI_API_KEY")
+    previous_gemini = os.environ.get("GEMINI_API_KEY")
+    previous_google = os.environ.get("GOOGLE_API_KEY")
     os.environ["GEMINI_API_KEY"] = x_gemini_api_key
+    os.environ.pop("GOOGLE_API_KEY", None)
     try:
         buf = io.StringIO()
         with redirect_stdout(buf):
@@ -35,7 +37,9 @@ def conversation(req: ConversationRequest, x_gemini_api_key: Optional[str] = Hea
     except Exception as e:
         raise HTTPException(status_code=502, detail=str(e))
     finally:
-        if previous is None:
+        if previous_gemini is None:
             os.environ.pop("GEMINI_API_KEY", None)
         else:
-            os.environ["GEMINI_API_KEY"] = previous
+            os.environ["GEMINI_API_KEY"] = previous_gemini
+        if previous_google is not None:
+            os.environ["GOOGLE_API_KEY"] = previous_google

@@ -17,7 +17,10 @@ class NegotiateResponse(BaseModel):
 
 @router.post("/negotiate", response_model=NegotiateResponse)
 def negotiate():
-    server = _mod.start_budget_checker()
+    try:
+        server = _mod.start_budget_checker()
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Could not start negotiation server: {e}")
     try:
         time.sleep(0.2)
         buf = io.StringIO()

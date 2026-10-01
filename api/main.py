@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import module_01, module_02, module_03
+from .routers import module_01, module_02, module_03, module_04
 
 app = FastAPI(title="AI Learning Curriculum API")
 
@@ -22,3 +22,4 @@ def health():
 app.include_router(module_01.router)
 app.include_router(module_02.router)
 app.include_router(module_03.router)
+app.include_router(module_04.router)

@@ -23,6 +23,19 @@ const MODULES = [
   { slug: "17-knowledge-graph", num: "17" },
   { slug: "18-hybrid-search", num: "18" },
   { slug: "19-incremental-indexing", num: "19" },
+  { slug: "20-attention-mechanism", num: "20" },
+  { slug: "21-multi-head-attention", num: "21" },
+  { slug: "22-positional-encoding", num: "22" },
+  { slug: "23-tokenization", num: "23" },
+  { slug: "24-kv-cache", num: "24" },
+  { slug: "25-quantization", num: "25" },
+  { slug: "26-reranking", num: "26" },
+  { slug: "27-model-evaluation", num: "27" },
+  { slug: "28-llm-as-judge", num: "28" },
+  { slug: "29-vector-databases", num: "29" },
+  { slug: "30-agent-skills", num: "30" },
+  { slug: "31-agent-harness", num: "31" },
+  { slug: "32-forward-deployed-engineer", num: "32" },
 ];
 
 export function NavBar() {

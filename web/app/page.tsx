@@ -21,6 +21,18 @@ import {
   Share2,
   Blend,
   RefreshCw,
+  Eye,
+  Layers,
+  Waves,
+  Scissors,
+  Gauge,
+  Shrink,
+  ArrowUpDown,
+  ClipboardCheck,
+  Scale,
+  Package,
+  Cog,
+  MapPin,
 } from "lucide-react";
 
 const FOUNDATIONS = [
@@ -49,6 +61,28 @@ const ADVANCED = [
 const RAG_DEEP_DIVES = [
   { slug: "18-hybrid-search", num: "18", icon: Blend, title: "Hybrid Search Explained", blurb: "BM25 vs vector vs combined, side by side, on a query where it matters." },
   { slug: "19-incremental-indexing", num: "19", icon: RefreshCw, title: "Live-Updating Documents", blurb: "Add, edit, or delete one document — see the index update instantly." },
+  { slug: "29-vector-databases", num: "29", icon: Database, title: "Vector Databases", blurb: "Brute-force vs indexed search, timed, as the corpus grows." },
+];
+
+const TRANSFORMER_INTERNALS = [
+  { slug: "20-attention-mechanism", num: "20", icon: Eye, title: "Attention Mechanism", blurb: "Real scaled dot-product attention, visualized as a heatmap." },
+  { slug: "21-multi-head-attention", num: "21", icon: Layers, title: "QKV Attention (Multi-Head)", blurb: "The same attention, run in parallel across several heads." },
+  { slug: "22-positional-encoding", num: "22", icon: Waves, title: "Positional Encoding", blurb: "Proving attention is order-blind — until you add positions back." },
+  { slug: "23-tokenization", num: "23", icon: Scissors, title: "Tokenization", blurb: "A real tokenizer splitting words into subword pieces." },
+  { slug: "24-kv-cache", num: "24", icon: Gauge, title: "KV Cache", blurb: "Why generation would be quadratic-slow without caching." },
+  { slug: "25-quantization", num: "25", icon: Shrink, title: "Quantization", blurb: "Shrinking real weights to int8 — and measuring the precision loss." },
+];
+
+const EVALUATION = [
+  { slug: "26-reranking", num: "26", icon: ArrowUpDown, title: "Reranking", blurb: "A fast first pass, then a smarter second pass that fixes the order." },
+  { slug: "27-model-evaluation", num: "27", icon: ClipboardCheck, title: "Model Evaluation", blurb: "A tiny automated eval suite, scored live against Gemini." },
+  { slug: "28-llm-as-judge", num: "28", icon: Scale, title: "LLM-as-Judge", blurb: "One AI scoring two answers for helpfulness, accuracy, and clarity." },
+];
+
+const CONCEPTS = [
+  { slug: "30-agent-skills", num: "30", icon: Package, title: "What Is an Agent Skill?", blurb: "Packaged, reusable instructions an agent can reach for." },
+  { slug: "31-agent-harness", num: "31", icon: Cog, title: "What Is an Agent Harness?", blurb: "The execution loop that gives a model hands, using this session as the example." },
+  { slug: "32-forward-deployed-engineer", num: "32", icon: MapPin, title: "What Is a Forward-Deployed Engineer?", blurb: "Embedded with one customer, building on the platform for their exact problem." },
 ];
 
 export default function Home() {
@@ -63,9 +97,10 @@ export default function Home() {
       </h1>
 
       <p className="text-neutral-400 text-lg max-w-2xl mb-3">
-        Nineteen runnable lessons on production RAG, embeddings, agent memory, multi-agent
-        orchestration, observability, and real LangChain/LangGraph pipelines. Ask questions,
-        click run, watch it happen live — get real probabilities, not prose.
+        Twenty-nine runnable lessons — plus three short concept explainers — on production RAG,
+        transformer internals, agent architectures, evaluation, and real LangChain/LangGraph
+        pipelines. Ask questions, click run, watch it happen live — get real probabilities, not
+        prose.
       </p>
       <p className="text-neutral-500 text-sm max-w-2xl mb-8">
         The Gemini API key is configured on the server. Nothing to set up — just click in and
@@ -109,6 +144,15 @@ export default function Home() {
 
       <div className="text-xs uppercase tracking-[0.2em] text-neutral-500 font-medium mb-4 mt-12">RAG Deep Dives</div>
       <ModuleGrid modules={RAG_DEEP_DIVES} />
+
+      <div className="text-xs uppercase tracking-[0.2em] text-neutral-500 font-medium mb-4 mt-12">Transformer Internals</div>
+      <ModuleGrid modules={TRANSFORMER_INTERNALS} />
+
+      <div className="text-xs uppercase tracking-[0.2em] text-neutral-500 font-medium mb-4 mt-12">Evaluation</div>
+      <ModuleGrid modules={EVALUATION} />
+
+      <div className="text-xs uppercase tracking-[0.2em] text-neutral-500 font-medium mb-4 mt-12">Concepts</div>
+      <ModuleGrid modules={CONCEPTS} />
     </main>
   );
 }

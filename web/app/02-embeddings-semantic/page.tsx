@@ -5,14 +5,15 @@ import { ConceptPanel, ResultPanel } from "@/components/ConceptPanel";
 import { Term } from "@/components/Term";
 import { FlowDiagram, type FlowNodeState } from "@/components/FlowDiagram";
 import { TypewriterText } from "@/components/TypewriterText";
+import { HelpCircle, Search, BarChart3 } from "lucide-react";
 
 type ScoredText = { text: string; score: number };
 type CompareResponse = { tfidf: ScoredText; semantic: ScoredText; better_match: boolean };
 
 const NODES = [
-  { id: "query", icon: "❓", label: "Query" },
-  { id: "match", icon: "🔎", label: "Best match" },
-  { id: "score", icon: "📊", label: "Score" },
+  { id: "query", icon: HelpCircle, label: "Query" },
+  { id: "match", icon: Search, label: "Best match" },
+  { id: "score", icon: BarChart3, label: "Score" },
 ];
 
 function ScoreBar({ score, color }: { score: number; color: string }) {

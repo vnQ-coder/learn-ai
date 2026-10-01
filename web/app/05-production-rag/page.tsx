@@ -6,15 +6,16 @@ import { Term } from "@/components/Term";
 import { ChatThread, type Bubble } from "@/components/ChatThread";
 import { FlowDiagram, type FlowNodeState } from "@/components/FlowDiagram";
 import { TypewriterText } from "@/components/TypewriterText";
+import { HelpCircle, Search, FileText, Brain, MessageCircle } from "lucide-react";
 
 type RetrievedChunk = { source: string; score: number; raw_vector_score: number };
 
 const NODES = [
-  { id: "question", icon: "❓", label: "Question" },
-  { id: "search", icon: "🔎", label: "Searching" },
-  { id: "chunks", icon: "📄", label: "Chunks" },
-  { id: "gemini", icon: "🧠", label: "Gemini" },
-  { id: "answer", icon: "💬", label: "Answer" },
+  { id: "question", icon: HelpCircle, label: "Question" },
+  { id: "search", icon: Search, label: "Searching" },
+  { id: "chunks", icon: FileText, label: "Chunks" },
+  { id: "gemini", icon: Brain, label: "Gemini" },
+  { id: "answer", icon: MessageCircle, label: "Answer" },
 ];
 
 function stageStates(stage: number): FlowNodeState[] {

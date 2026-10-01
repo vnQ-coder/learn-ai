@@ -6,12 +6,13 @@ import { Term } from "@/components/Term";
 import { ChatThread, type Bubble } from "@/components/ChatThread";
 import { FlowDiagram, type FlowNodeState } from "@/components/FlowDiagram";
 import { TypewriterText } from "@/components/TypewriterText";
+import { HelpCircle, Brain, Wrench, MessageCircle } from "lucide-react";
 
 const NODES = [
-  { id: "question", icon: "❓", label: "Question" },
-  { id: "decides", icon: "🧠", label: "Decides" },
-  { id: "tool", icon: "🔧", label: "Tool runs" },
-  { id: "answer", icon: "💬", label: "Answer" },
+  { id: "question", icon: HelpCircle, label: "Question" },
+  { id: "decides", icon: Brain, label: "Decides" },
+  { id: "tool", icon: Wrench, label: "Tool runs" },
+  { id: "answer", icon: MessageCircle, label: "Answer" },
 ];
 
 function stageStates(stage: number): FlowNodeState[] {

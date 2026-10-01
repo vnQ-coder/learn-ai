@@ -6,14 +6,15 @@ import { Term } from "@/components/Term";
 import { ChatThread, type Bubble } from "@/components/ChatThread";
 import { FlowDiagram, type FlowNodeState } from "@/components/FlowDiagram";
 import { TypewriterText } from "@/components/TypewriterText";
+import { HelpCircle, Search, CheckCircle2, PenLine, ClipboardList } from "lucide-react";
 
 const STAGES = ["Your topic", "Researcher", "Fact-checker", "Writer", "Final report"];
 const NODES = [
-  { id: "topic", icon: "❓", label: "Topic" },
-  { id: "researcher", icon: "🔎", label: "Researcher" },
-  { id: "factchecker", icon: "✅", label: "Fact-checker" },
-  { id: "writer", icon: "✍️", label: "Writer" },
-  { id: "report", icon: "📋", label: "Report" },
+  { id: "topic", icon: HelpCircle, label: "Topic" },
+  { id: "researcher", icon: Search, label: "Researcher" },
+  { id: "factchecker", icon: CheckCircle2, label: "Fact-checker" },
+  { id: "writer", icon: PenLine, label: "Writer" },
+  { id: "report", icon: ClipboardList, label: "Report" },
 ];
 
 function stageStates(stage: number): FlowNodeState[] {

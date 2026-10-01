@@ -5,9 +5,10 @@ import { ConceptPanel, ResultPanel } from "@/components/ConceptPanel";
 import { Term } from "@/components/Term";
 import { ChatThread, type Bubble } from "@/components/ChatThread";
 import { FlowDiagram, type FlowNodeState } from "@/components/FlowDiagram";
+import { MessageCircle } from "lucide-react";
 
 const STAGES = ["Turn 1", "Turn 2", "Turn 3", "Turn 4", "Turn 5 (the test)"];
-const NODES = STAGES.map((label, i) => ({ id: `t${i}`, icon: "💬", label }));
+const NODES = STAGES.map((label, i) => ({ id: `t${i}`, icon: MessageCircle, label }));
 
 function stageStates(stage: number): FlowNodeState[] {
   return STAGES.map((_, i) => {

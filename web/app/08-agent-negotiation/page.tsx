@@ -5,14 +5,15 @@ import { ConceptPanel, ResultPanel } from "@/components/ConceptPanel";
 import { Term } from "@/components/Term";
 import { ChatThread, type Bubble } from "@/components/ChatThread";
 import { FlowDiagram, type FlowNodeState } from "@/components/FlowDiagram";
+import { Briefcase, Wallet, Handshake } from "lucide-react";
 
 const STAGES = ["Round 1", "Round 2", "Round 3", "Round 4+", "Agreement"];
 const NODES = [
-  { id: "r1", icon: "🧳", label: "Round 1" },
-  { id: "r2", icon: "💰", label: "Round 2" },
-  { id: "r3", icon: "🧳", label: "Round 3" },
-  { id: "r4", icon: "💰", label: "Round 4+" },
-  { id: "deal", icon: "🤝", label: "Agreement" },
+  { id: "r1", icon: Briefcase, label: "Round 1" },
+  { id: "r2", icon: Wallet, label: "Round 2" },
+  { id: "r3", icon: Briefcase, label: "Round 3" },
+  { id: "r4", icon: Wallet, label: "Round 4+" },
+  { id: "deal", icon: Handshake, label: "Agreement" },
 ];
 
 function stageStates(stage: number): FlowNodeState[] {

@@ -7,14 +7,15 @@ import { FlowDiagram, type FlowNodeState } from "@/components/FlowDiagram";
 import { ConfidenceGauge } from "@/components/ConfidenceGauge";
 import { SourceChips } from "@/components/SourceChips";
 import { TypewriterText } from "@/components/TypewriterText";
+import { HelpCircle, Search, ShieldCheck, MessageCircle } from "lucide-react";
 
 const THRESHOLD = 0.3;
 
 const NODES = [
-  { id: "question", icon: "❓", label: "Question" },
-  { id: "search", icon: "🔎", label: "Search" },
-  { id: "confidence", icon: "🛡️", label: "Confidence" },
-  { id: "answer", icon: "💬", label: "Answer" },
+  { id: "question", icon: HelpCircle, label: "Question" },
+  { id: "search", icon: Search, label: "Search" },
+  { id: "confidence", icon: ShieldCheck, label: "Confidence" },
+  { id: "answer", icon: MessageCircle, label: "Answer" },
 ];
 
 type Chunk = { source: string; score: number; raw_vector_score: number };

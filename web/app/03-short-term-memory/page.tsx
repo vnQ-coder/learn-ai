@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import { apiPost } from "@/lib/api";
+import { ConceptPanel, ResultPanel } from "@/components/ConceptPanel";
+import { Term } from "@/components/Term";
 
 type ConversationResponse = { transcript: string };
 
@@ -30,6 +32,31 @@ export default function Page() {
       <p className="text-gray-600 mb-4">
         Scenario: a support chatbot booking a flight, where an early detail must survive to the last turn.
       </p>
+
+      <ConceptPanel
+        plain={
+          <>
+            AI chatbots don&apos;t remember a conversation the way a person does — they only
+            see a limited window of recent messages on every reply. Tell it &quot;business
+            class&quot; early on, then ask it to recall that detail later. If too much
+            conversation has happened in between, it genuinely won&apos;t know — not because
+            it&apos;s being evasive, but because that message has scrolled out of what it can
+            see.
+          </>
+        }
+        technical={
+          <>
+            This implements a sliding-window <Term term="shortTermMemory">context buffer</Term>:
+            each call to the model includes only the last N turns of conversation; everything
+            older is dropped from the prompt entirely before the request is even sent. The
+            model has no hidden memory of dropped turns — if it&apos;s not in the window, it
+            never existed as far as that API call is concerned. This is exactly why production
+            chat apps need a separate strategy (see module 04) for anything that must survive
+            past a short window.
+          </>
+        }
+      />
+
       <div className="flex gap-3 mb-4">
         <button onClick={() => run(10, setTranscript10, "10")} disabled={loading !== null} className="bg-black text-white rounded px-4 py-2 disabled:opacity-50">
           {loading === "10" ? "Running..." : "Run with window_size=10 (remembers)"}
@@ -50,6 +77,16 @@ export default function Page() {
           <h2 className="font-semibold mb-1">window_size=1 (forgets)</h2>
           <pre className="whitespace-pre-wrap border rounded p-3 bg-white text-sm">{transcript1}</pre>
         </div>
+      )}
+      {transcript10 && transcript1 && (
+        <ResultPanel>
+          Run both buttons and compare the final answer in each transcript. With a window of 10
+          turns, the assistant still had &quot;business class&quot; in view and should recall it
+          correctly. With a window of just 1 turn, that detail was pushed out several messages
+          ago — the assistant should either admit it doesn&apos;t know or guess wrong. Same
+          model, same conversation, only the <Term term="shortTermMemory">memory window</Term>{" "}
+          changed.
+        </ResultPanel>
       )}
     </main>
   );

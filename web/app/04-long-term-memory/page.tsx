@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import { apiPost } from "@/lib/api";
+import { ConceptPanel, ResultPanel } from "@/components/ConceptPanel";
+import { Term } from "@/components/Term";
 
 type RememberResponse = { id: string };
 type RecallResponse = { result: string | null; distance: number | null };
@@ -45,6 +47,30 @@ export default function Page() {
       <h1 className="text-2xl font-bold mb-2">04 — Long-Term Memory (Persistent, Cross-Session)</h1>
       <p className="text-gray-600 mb-4">Scenario: a personal assistant that remembers facts across separate sessions.</p>
 
+      <ConceptPanel
+        plain={
+          <>
+            Unlike module 03&apos;s short memory, this is like a notebook the assistant can
+            write to and read from later — even after the conversation has completely ended.
+            Teach it a fact below, then ask a related question in a totally different wording.
+            It should still find it, because it&apos;s searching by meaning, not storing your
+            exact sentence.
+          </>
+        }
+        technical={
+          <>
+            Facts are converted into an <Term term="embedding">embedding</Term> and saved in a
+            persistent vector database (Chroma) on disk — it survives even restarting the whole
+            application. Recall works by embedding your question and finding the{" "}
+            <em>nearest</em> stored fact by vector distance, exactly like{" "}
+            <Term term="semanticSearch">semantic search</Term> in module 02, just backed by
+            permanent storage instead of a one-off in-memory list. This pattern — embed, store,
+            retrieve by similarity — is also the backbone of the{" "}
+            <Term term="rag">RAG</Term> pipeline in modules 05–06.
+          </>
+        }
+      />
+
       <div className="mb-6">
         <label className="block text-sm font-medium mb-1">Teach me a fact</label>
         <div className="flex gap-2">
@@ -73,6 +99,25 @@ export default function Page() {
         )}
       </div>
       {error && <p className="text-red-600 mt-4">{error}</p>}
+
+      {recallResult && (
+        <ResultPanel>
+          {recallResult.result ? (
+            <>
+              The assistant found <strong>&quot;{recallResult.result}&quot;</strong> with a
+              distance of <strong>{recallResult.distance?.toFixed(3)}</strong>. Distance works
+              the opposite of a similarity score — the lower the number, the closer the match in
+              meaning. Notice your question didn&apos;t need to share any words with the fact
+              you taught it; it only needed to be related in meaning.
+            </>
+          ) : (
+            <>
+              Nothing has been taught yet, or nothing close enough to your question was found.
+              Click &quot;Remember&quot; above first, then try recalling again.
+            </>
+          )}
+        </ResultPanel>
+      )}
     </main>
   );
 }

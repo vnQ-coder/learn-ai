@@ -18,10 +18,19 @@ export default function Home() {
   return (
     <main className="max-w-3xl mx-auto p-8">
       <h1 className="text-3xl font-bold mb-2">AI Learning Curriculum</h1>
-      <p className="text-gray-600 mb-6">
-        Nine runnable lessons on production RAG, embeddings, agent memory, and multi-agent systems.
-        The Gemini API key is configured on the server (via its <code>.env</code> file) — nothing to set up here.
+      <p className="text-gray-600 mb-4">
+        Nine runnable lessons on production RAG, embeddings, agent memory, and multi-agent
+        systems. The Gemini API key is configured on the server — nothing to set up here, just
+        click in and press Run.
       </p>
+
+      <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 mb-8 text-sm text-gray-700">
+        Every page has two layers: a <strong>💡 plain-English</strong> box explaining what
+        you&apos;re about to see and why it matters, and a <strong>🔧 under the hood</strong> box
+        (click to expand) with the real technical mechanism for anyone who wants it. After you
+        run a demo, a <strong>🔍 result</strong> box explains what the actual numbers and output
+        mean. Underlined words anywhere are clickable — click one for a one-line definition.
+      </div>
 
       <ul className="space-y-3">
         {MODULES.map((m) => (

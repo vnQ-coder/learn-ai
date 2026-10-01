@@ -21,6 +21,8 @@ const MODULES = [
   { slug: "15-langchain-pipeline", num: "15" },
   { slug: "16-langgraph-pipeline", num: "16" },
   { slug: "17-knowledge-graph", num: "17" },
+  { slug: "18-hybrid-search", num: "18" },
+  { slug: "19-incremental-indexing", num: "19" },
 ];
 
 export function NavBar() {

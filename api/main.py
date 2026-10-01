@@ -23,6 +23,8 @@ from .routers import (
     module_15,
     module_16,
     module_17,
+    module_18,
+    module_19,
 )
 
 app = FastAPI(title="AI Learning Curriculum API")
@@ -57,3 +59,5 @@ app.include_router(module_14.router)
 app.include_router(module_15.router)
 app.include_router(module_16.router)
 app.include_router(module_17.router)
+app.include_router(module_18.router)
+app.include_router(module_19.router)

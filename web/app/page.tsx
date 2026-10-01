@@ -19,6 +19,8 @@ import {
   Link2,
   Network,
   Share2,
+  Blend,
+  RefreshCw,
 } from "lucide-react";
 
 const FOUNDATIONS = [
@@ -44,6 +46,11 @@ const ADVANCED = [
   { slug: "17-knowledge-graph", num: "17", icon: Share2, title: "Knowledge Graph", blurb: "Multi-hop reasoning by traversing facts instead of vector search." },
 ];
 
+const RAG_DEEP_DIVES = [
+  { slug: "18-hybrid-search", num: "18", icon: Blend, title: "Hybrid Search Explained", blurb: "BM25 vs vector vs combined, side by side, on a query where it matters." },
+  { slug: "19-incremental-indexing", num: "19", icon: RefreshCw, title: "Live-Updating Documents", blurb: "Add, edit, or delete one document — see the index update instantly." },
+];
+
 export default function Home() {
   return (
     <main className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
@@ -56,7 +63,7 @@ export default function Home() {
       </h1>
 
       <p className="text-neutral-400 text-lg max-w-2xl mb-3">
-        Seventeen runnable lessons on production RAG, embeddings, agent memory, multi-agent
+        Nineteen runnable lessons on production RAG, embeddings, agent memory, multi-agent
         orchestration, observability, and real LangChain/LangGraph pipelines. Ask questions,
         click run, watch it happen live — get real probabilities, not prose.
       </p>
@@ -99,6 +106,9 @@ export default function Home() {
         Advanced Architectures &amp; Frameworks
       </div>
       <ModuleGrid modules={ADVANCED} />
+
+      <div className="text-xs uppercase tracking-[0.2em] text-neutral-500 font-medium mb-4 mt-12">RAG Deep Dives</div>
+      <ModuleGrid modules={RAG_DEEP_DIVES} />
     </main>
   );
 }

@@ -23,7 +23,12 @@
 }
 
 .flow-sweep {
-  background-image: linear-gradient(90deg, #bfdbfe 0%, #3b82f6 50%, #bfdbfe 100%);
+  background-image: linear-gradient(90deg, #0f766e 0%, #2dd4bf 50%, #0f766e 100%);
   background-size: 200% 100%;
   animation: flowSweep 0.9s linear infinite;
+}
+
+::selection {
+  background: #2dd4bf;
+  color: #0a0f0d;
 }

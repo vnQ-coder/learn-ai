@@ -11,7 +11,7 @@ export function Term({ term, children }: { term: GlossaryKey; children: React.Re
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="underline decoration-dotted decoration-gray-400 underline-offset-2 text-inherit font-medium"
+        className="underline decoration-dotted decoration-emerald-500/60 underline-offset-2 text-emerald-300 font-medium"
         aria-expanded={open}
       >
         {children}
@@ -19,7 +19,7 @@ export function Term({ term, children }: { term: GlossaryKey; children: React.Re
       {open && (
         <span
           role="tooltip"
-          className="absolute z-20 left-0 top-full mt-1 w-64 rounded-md border border-gray-200 bg-white p-2 text-xs leading-snug text-gray-700 shadow-lg"
+          className="absolute z-20 left-0 top-full mt-1 w-64 rounded-md border border-neutral-700 bg-neutral-900 p-2 text-xs leading-snug text-neutral-300 shadow-lg"
         >
           {GLOSSARY[term]}
         </span>

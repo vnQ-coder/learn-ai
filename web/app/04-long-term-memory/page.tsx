@@ -68,9 +68,9 @@ export default function Page() {
   }
 
   return (
-    <main className="max-w-2xl mx-auto p-8">
-      <h1 className="text-2xl font-bold mb-2">04 — Long-Term Memory (Persistent, Cross-Session)</h1>
-      <p className="text-gray-600 mb-4">Scenario: a personal assistant that remembers facts across separate sessions.</p>
+    <main className="max-w-2xl mx-auto px-4 sm:px-6 py-10">
+      <h1 className="text-2xl font-bold mb-2 text-neutral-100">04 — Long-Term Memory (Persistent, Cross-Session)</h1>
+      <p className="text-neutral-400 mb-4">Scenario: a personal assistant that remembers facts across separate sessions.</p>
 
       <ConceptPanel
         plain={
@@ -95,14 +95,30 @@ export default function Page() {
       <ChatThread bubbles={bubbles} />
 
       <div className="flex gap-2 mb-2">
-        <input className="flex-1 border rounded-full px-4 py-2" value={fact} onChange={(e) => setFact(e.target.value)} />
-        <button onClick={remember} disabled={loading !== null} className="bg-black text-white rounded-full px-4 py-2 disabled:opacity-50 text-sm">
+        <input
+          className="flex-1 border border-neutral-700 bg-neutral-900 text-neutral-100 placeholder-neutral-500 rounded-full px-4 py-2 focus:outline-none focus:border-emerald-400/60"
+          value={fact}
+          onChange={(e) => setFact(e.target.value)}
+        />
+        <button
+          onClick={remember}
+          disabled={loading !== null}
+          className="bg-emerald-400 text-black rounded-full px-4 py-2 disabled:opacity-50 text-sm font-medium hover:bg-emerald-300 transition-colors"
+        >
           {loading === "remember" ? "…" : "Remember"}
         </button>
       </div>
       <div className="flex gap-2 mb-2">
-        <input className="flex-1 border rounded-full px-4 py-2" value={question} onChange={(e) => setQuestion(e.target.value)} />
-        <button onClick={recall} disabled={loading !== null} className="bg-gray-700 text-white rounded-full px-4 py-2 disabled:opacity-50 text-sm">
+        <input
+          className="flex-1 border border-neutral-700 bg-neutral-900 text-neutral-100 placeholder-neutral-500 rounded-full px-4 py-2 focus:outline-none focus:border-emerald-400/60"
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+        />
+        <button
+          onClick={recall}
+          disabled={loading !== null}
+          className="bg-neutral-800 border border-neutral-700 text-neutral-200 rounded-full px-4 py-2 disabled:opacity-50 text-sm hover:bg-neutral-700 transition-colors"
+        >
           {loading === "recall" ? "…" : "Recall"}
         </button>
       </div>

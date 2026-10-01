@@ -2,16 +2,16 @@ export type FlowNode = { id: string; icon: string; label: string };
 export type FlowNodeState = "pending" | "active" | "done" | "fail";
 
 const STATE_CLASSES: Record<FlowNodeState, string> = {
-  pending: "bg-gray-100 border-gray-200 text-gray-400",
-  active: "bg-blue-100 border-blue-400 text-blue-700 animate-pulse scale-110 shadow-md",
-  done: "bg-green-100 border-green-500 text-green-700",
-  fail: "bg-red-100 border-red-500 text-red-700",
+  pending: "bg-neutral-900 border-neutral-700 text-neutral-600",
+  active: "bg-emerald-400/15 border-emerald-400 text-emerald-300 animate-pulse scale-110 shadow-md shadow-emerald-400/10",
+  done: "bg-emerald-400/15 border-emerald-500 text-emerald-300",
+  fail: "bg-red-950/40 border-red-500 text-red-400",
 };
 
 function connectorClass(from: FlowNodeState, to: FlowNodeState): string {
   if (from === "done" && to === "active") return "flow-sweep";
-  if (from === "done" || from === "fail") return "bg-gray-400";
-  return "bg-gray-200";
+  if (from === "done" || from === "fail") return "bg-emerald-600/60";
+  return "bg-neutral-800";
 }
 
 export function FlowDiagram({
@@ -41,7 +41,7 @@ export function FlowDiagram({
             >
               {states[i] === "done" ? "✓" : states[i] === "fail" ? "✕" : n.icon}
             </div>
-            {!compact && <div className="text-[11px] text-gray-600 text-center leading-tight">{n.label}</div>}
+            {!compact && <div className="text-[11px] text-neutral-500 text-center leading-tight">{n.label}</div>}
           </div>
           {i < nodes.length - 1 && (
             <div className={"flex-1 h-0.5 mx-1 transition-colors duration-300 " + mt + " " + connectorClass(states[i], states[i + 1])} />

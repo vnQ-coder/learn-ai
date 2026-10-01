@@ -100,9 +100,9 @@ export default function Page() {
   }
 
   return (
-    <main className="max-w-2xl mx-auto p-8">
-      <h1 className="text-2xl font-bold mb-2">07 — MCP-Style Tool Use (Function Calling)</h1>
-      <p className="text-gray-600 mb-4">Scenario: an agent answering order questions by calling a local tool instead of guessing.</p>
+    <main className="max-w-2xl mx-auto px-4 sm:px-6 py-10">
+      <h1 className="text-2xl font-bold mb-2 text-neutral-100">07 — MCP-Style Tool Use (Function Calling)</h1>
+      <p className="text-neutral-400 mb-4">Scenario: an agent answering order questions by calling a local tool instead of guessing.</p>
 
       <ConceptPanel
         plain={
@@ -130,12 +130,16 @@ export default function Page() {
 
       <div className="flex gap-2 mb-2">
         <input
-          className="flex-1 border rounded-full px-4 py-2"
+          className="flex-1 border border-neutral-700 bg-neutral-900 text-neutral-100 placeholder-neutral-500 rounded-full px-4 py-2 focus:outline-none focus:border-emerald-400/60"
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && !loading && run()}
         />
-        <button onClick={run} disabled={loading} className="bg-black text-white rounded-full px-5 py-2 disabled:opacity-50">
+        <button
+          onClick={run}
+          disabled={loading}
+          className="bg-emerald-400 text-black rounded-full px-5 py-2 disabled:opacity-50 font-medium hover:bg-emerald-300 transition-colors"
+        >
           {loading ? "…" : "Ask"}
         </button>
       </div>

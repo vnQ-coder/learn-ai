@@ -7,10 +7,10 @@ export type Bubble = {
 };
 
 const ROLE_CLASSES: Record<Bubble["role"], string> = {
-  user: "ml-auto max-w-[85%] bg-black text-white rounded-2xl rounded-br-sm px-4 py-2",
-  error: "max-w-[90%] bg-red-50 border border-red-200 text-red-800 rounded-2xl rounded-bl-sm px-4 py-2 text-sm",
-  answer: "max-w-[90%] bg-white border border-gray-200 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm",
-  step: "max-w-[90%] bg-gray-100 text-gray-600 text-sm rounded-2xl rounded-bl-sm px-3 py-1.5",
+  user: "ml-auto max-w-[85%] bg-emerald-400 text-black rounded-2xl rounded-br-sm px-4 py-2",
+  error: "max-w-[90%] bg-red-950/40 border border-red-900/60 text-red-300 rounded-2xl rounded-bl-sm px-4 py-2 text-sm",
+  answer: "max-w-[90%] bg-neutral-900/70 border border-neutral-800 text-neutral-100 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm",
+  step: "max-w-[90%] bg-neutral-800/50 text-neutral-400 text-sm rounded-2xl rounded-bl-sm px-3 py-1.5",
 };
 
 export function ChatThread({ bubbles }: { bubbles: Bubble[] }) {

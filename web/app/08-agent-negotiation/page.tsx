@@ -77,9 +77,9 @@ export default function Page() {
   }
 
   return (
-    <main className="max-w-2xl mx-auto p-8">
-      <h1 className="text-2xl font-bold mb-2">08 — Agents Talking (Agent-to-Agent Negotiation)</h1>
-      <p className="text-gray-600 mb-4">
+    <main className="max-w-2xl mx-auto px-4 sm:px-6 py-10">
+      <h1 className="text-2xl font-bold mb-2 text-neutral-100">08 — Agents Talking (Agent-to-Agent Negotiation)</h1>
+      <p className="text-neutral-400 mb-4">
         Scenario: a trip-planner agent negotiating budget with a separate budget-checker agent over HTTP.
       </p>
 
@@ -106,7 +106,11 @@ export default function Page() {
 
       {stage >= 0 && <FlowDiagram nodes={NODES} states={stageStates(stage)} />}
 
-      <button onClick={run} disabled={loading} className="bg-black text-white rounded-full px-5 py-2 disabled:opacity-50 mb-2">
+      <button
+        onClick={run}
+        disabled={loading}
+        className="bg-emerald-400 text-black rounded-full px-5 py-2 disabled:opacity-50 mb-2 font-medium hover:bg-emerald-300 transition-colors"
+      >
         {loading ? "Negotiating..." : "Run negotiation"}
       </button>
 

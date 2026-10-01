@@ -57,9 +57,9 @@ function Column({ label, accent, question, state }: { label: string; accent: str
     <div className="flex-1 min-w-0">
       <div className="flex items-center gap-2 mb-2">
         <span className={"inline-block w-2 h-2 rounded-full " + accent} />
-        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{label}</span>
+        <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wide">{label}</span>
       </div>
-      <div className="text-sm text-gray-700 mb-3 truncate" title={question}>
+      <div className="text-sm text-neutral-400 mb-3 truncate" title={question}>
         &quot;{question}&quot;
       </div>
 
@@ -67,13 +67,15 @@ function Column({ label, accent, question, state }: { label: string; accent: str
 
       {state.chunks.length > 0 && <SourceChips chunks={state.chunks} threshold={THRESHOLD} limit={3} />}
       {state.topScore !== null && <ConfidenceGauge score={state.topScore} threshold={THRESHOLD} passed={passed} width={220} />}
-      {state.errorMsg && <p className="text-red-600 text-sm mt-2">{state.errorMsg}</p>}
+      {state.errorMsg && <p className="text-red-400 text-sm mt-2">{state.errorMsg}</p>}
 
       {state.result && (
         <div
           className={
             "mt-3 rounded-xl border px-3 py-2.5 text-sm animate-[fadeIn_0.3s_ease-out] " +
-            (state.phase === "refused" ? "border-red-200 bg-red-50 text-red-800" : "border-gray-200 bg-white shadow-sm")
+            (state.phase === "refused"
+              ? "border-red-900/50 bg-red-950/30 text-red-300"
+              : "border-neutral-800 bg-neutral-900/50 text-neutral-200 shadow-sm")
           }
         >
           <div className="font-semibold text-xs mb-1">{state.phase === "refused" ? "Refused" : "Answered"}</div>
@@ -131,9 +133,9 @@ export default function Page() {
   const bothDone = (left.phase === "answered" || left.phase === "refused") && (right.phase === "answered" || right.phase === "refused");
 
   return (
-    <main className="max-w-4xl mx-auto p-8">
-      <h1 className="text-2xl font-bold mb-2">06 — RAG Evaluation &amp; Guardrails</h1>
-      <p className="text-gray-600 mb-4">Scenario: grading the RAG bot&apos;s own answers before trusting them — watch both outcomes at once.</p>
+    <main className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
+      <h1 className="text-2xl font-bold mb-2 text-neutral-100">06 — RAG Evaluation &amp; Guardrails</h1>
+      <p className="text-neutral-400 mb-4">Scenario: grading the RAG bot&apos;s own answers before trusting them — watch both outcomes at once.</p>
 
       <ConceptPanel
         plain={
@@ -157,17 +159,17 @@ export default function Page() {
 
       <div className="grid sm:grid-cols-2 gap-3 mb-3">
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-1">On-topic question</label>
+          <label className="block text-xs font-medium text-neutral-500 mb-1">On-topic question</label>
           <input
-            className="w-full border rounded-full px-4 py-2 text-sm"
+            className="w-full border border-neutral-700 bg-neutral-900 text-neutral-100 placeholder-neutral-500 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-emerald-400/60"
             value={topicQuestion}
             onChange={(e) => setTopicQuestion(e.target.value)}
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-1">Off-topic question</label>
+          <label className="block text-xs font-medium text-neutral-500 mb-1">Off-topic question</label>
           <input
-            className="w-full border rounded-full px-4 py-2 text-sm"
+            className="w-full border border-neutral-700 bg-neutral-900 text-neutral-100 placeholder-neutral-500 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-emerald-400/60"
             value={offTopicQuestion}
             onChange={(e) => setOffTopicQuestion(e.target.value)}
           />
@@ -177,12 +179,12 @@ export default function Page() {
       <button
         onClick={runComparison}
         disabled={loading}
-        className="bg-black text-white rounded-full px-6 py-2.5 font-medium disabled:opacity-50 mb-6 hover:bg-gray-800 transition-colors"
+        className="bg-emerald-400 text-black rounded-full px-6 py-2.5 font-medium disabled:opacity-50 mb-6 hover:bg-emerald-300 transition-colors"
       >
         {loading ? "Running both..." : "▶ Run comparison"}
       </button>
 
-      <div className="grid sm:grid-cols-2 gap-6 border-t pt-6">
+      <div className="grid sm:grid-cols-2 gap-6 border-t border-neutral-800 pt-6">
         <Column label="On-topic" accent="bg-green-500" question={topicQuestion} state={left} />
         <Column label="Off-topic" accent="bg-gray-400" question={offTopicQuestion} state={right} />
       </div>

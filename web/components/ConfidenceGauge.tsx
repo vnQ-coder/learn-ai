@@ -33,23 +33,23 @@ export function ConfidenceGauge({
           </linearGradient>
         </defs>
         <rect x={0} y={18} width={width} height={barHeight} rx={7} fill={`url(#${gradientId})`} opacity={0.85} />
-        <line x1={thresholdX} y1={10} x2={thresholdX} y2={40} stroke="#374151" strokeWidth={2} strokeDasharray="3,2" />
-        <text x={thresholdX} y={9} fontSize={9} textAnchor="middle" fill="#374151">
+        <line x1={thresholdX} y1={10} x2={thresholdX} y2={40} stroke="#a3a3a3" strokeWidth={2} strokeDasharray="3,2" />
+        <text x={thresholdX} y={9} fontSize={9} textAnchor="middle" fill="#a3a3a3">
           threshold
         </text>
         <circle
           cx={scoreX}
           cy={25}
           r={9}
-          fill={passed ? "#16a34a" : "#dc2626"}
-          stroke="white"
+          fill={passed ? "#2dd4bf" : "#f87171"}
+          stroke="#0a0f0d"
           strokeWidth={2}
           className="transition-all duration-500"
         />
       </svg>
-      <div className="flex justify-between text-xs text-gray-500" style={{ width }}>
+      <div className="flex justify-between text-xs text-neutral-500" style={{ width }}>
         <span>
-          score: <strong className={passed ? "text-green-700" : "text-red-700"}>{score.toFixed(3)}</strong>
+          score: <strong className={passed ? "text-emerald-400" : "text-red-400"}>{score.toFixed(3)}</strong>
         </span>
         <span>needs ≥ {threshold.toFixed(2)}</span>
       </div>

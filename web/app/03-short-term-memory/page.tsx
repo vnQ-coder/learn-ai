@@ -73,9 +73,9 @@ export default function Page() {
   }
 
   return (
-    <main className="max-w-3xl mx-auto p-8">
-      <h1 className="text-2xl font-bold mb-2">03 — Short-Term Memory (Sliding Window)</h1>
-      <p className="text-gray-600 mb-4">
+    <main className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+      <h1 className="text-2xl font-bold mb-2 text-neutral-100">03 — Short-Term Memory (Sliding Window)</h1>
+      <p className="text-neutral-400 mb-4">
         Scenario: a support chatbot booking a flight, where an early detail must survive to the last turn.
       </p>
 
@@ -102,19 +102,19 @@ export default function Page() {
       <button
         onClick={runBoth}
         disabled={loading !== null}
-        className="bg-black text-white rounded-full px-6 py-2.5 font-medium disabled:opacity-50 mb-6 hover:bg-gray-800 transition-colors"
+        className="bg-emerald-400 text-black rounded-full px-6 py-2.5 font-medium disabled:opacity-50 mb-6 hover:bg-emerald-300 transition-colors"
       >
         {loading === "both" ? "Running both..." : "▶ Run both conversations"}
       </button>
 
-      <div className="grid md:grid-cols-2 gap-6 border-t pt-6">
+      <div className="grid md:grid-cols-2 gap-6 border-t border-neutral-800 pt-6">
         <div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-green-700 uppercase tracking-wide">window_size=10 (remembers)</span>
+            <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wide">window_size=10 (remembers)</span>
             <button
               onClick={() => run(10, "10")}
               disabled={loading !== null}
-              className="text-xs text-gray-500 underline disabled:opacity-50"
+              className="text-xs text-neutral-500 underline hover:text-neutral-300 disabled:opacity-50"
             >
               run alone
             </button>
@@ -124,11 +124,11 @@ export default function Page() {
         </div>
         <div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-red-700 uppercase tracking-wide">window_size=1 (forgets)</span>
+            <span className="text-xs font-semibold text-red-400 uppercase tracking-wide">window_size=1 (forgets)</span>
             <button
               onClick={() => run(1, "1")}
               disabled={loading !== null}
-              className="text-xs text-gray-500 underline disabled:opacity-50"
+              className="text-xs text-neutral-500 underline hover:text-neutral-300 disabled:opacity-50"
             >
               run alone
             </button>

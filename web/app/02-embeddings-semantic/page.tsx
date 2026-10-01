@@ -18,7 +18,7 @@ const NODES = [
 function ScoreBar({ score, color }: { score: number; color: string }) {
   const pct = Math.max(0, Math.min(1, score)) * 100;
   return (
-    <div className="h-2 rounded-full bg-gray-100 overflow-hidden my-1">
+    <div className="h-2 rounded-full bg-neutral-800 overflow-hidden my-1">
       <div className={"h-full rounded-full transition-all duration-700 " + color} style={{ width: `${pct}%` }} />
     </div>
   );
@@ -41,20 +41,20 @@ function Column({
 }) {
   const states: FlowNodeState[] = done ? ["done", "done", "done"] : data ? ["done", "active", "pending"] : ["pending", "pending", "pending"];
   return (
-    <div className={"flex-1 min-w-0 rounded-xl border p-3 " + (winner ? "border-green-300 bg-green-50/40" : "border-gray-200")}>
+    <div className={"flex-1 min-w-0 rounded-xl border p-3 " + (winner ? "border-emerald-400/40 bg-emerald-400/5" : "border-neutral-800 bg-neutral-900/30")}>
       <div className="flex items-center gap-2 mb-2">
         <span className={"inline-block w-2 h-2 rounded-full " + accent} />
-        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{label}</span>
-        {winner && <span className="text-xs text-green-700 font-medium ml-auto">winner</span>}
+        <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wide">{label}</span>
+        {winner && <span className="text-xs text-emerald-400 font-medium ml-auto">winner</span>}
       </div>
       <FlowDiagram nodes={NODES} states={states} compact />
       {data && (
         <>
-          <div className="text-xs text-gray-500 mb-1">
-            score: <strong className="text-gray-800">{data.score.toFixed(3)}</strong>
+          <div className="text-xs text-neutral-500 mb-1">
+            score: <strong className="text-neutral-200">{data.score.toFixed(3)}</strong>
           </div>
           <ScoreBar score={data.score} color={barColor} />
-          <div className="text-sm text-gray-700 mt-2">
+          <div className="text-sm text-neutral-300 mt-2">
             <TypewriterText text={data.text} />
           </div>
         </>
@@ -87,9 +87,9 @@ export default function Page() {
   const tfidfWins = data ? data.tfidf.score > data.semantic.score : false;
 
   return (
-    <main className="max-w-4xl mx-auto p-8">
-      <h1 className="text-2xl font-bold mb-2">02 — Embeddings: Semantic</h1>
-      <p className="text-gray-600 mb-4">Scenario: the same ticket search, run two ways at once — old words vs. new meaning.</p>
+    <main className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
+      <h1 className="text-2xl font-bold mb-2 text-neutral-100">02 — Embeddings: Semantic</h1>
+      <p className="text-neutral-400 mb-4">Scenario: the same ticket search, run two ways at once — old words vs. new meaning.</p>
 
       <ConceptPanel
         plain={
@@ -113,7 +113,7 @@ export default function Page() {
 
       <div className="flex gap-2 mb-6">
         <input
-          className="flex-1 border rounded-full px-4 py-2"
+          className="flex-1 border border-neutral-700 bg-neutral-900 text-neutral-100 placeholder-neutral-500 rounded-full px-4 py-2 focus:outline-none focus:border-emerald-400/60"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && !loading && run()}
@@ -121,17 +121,17 @@ export default function Page() {
         <button
           onClick={run}
           disabled={loading}
-          className="bg-black text-white rounded-full px-6 py-2 font-medium disabled:opacity-50 hover:bg-gray-800 transition-colors"
+          className="bg-emerald-400 text-black rounded-full px-6 py-2 font-medium disabled:opacity-50 hover:bg-emerald-300 transition-colors"
         >
           {loading ? "Comparing..." : "▶ Compare"}
         </button>
       </div>
 
-      {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
+      {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
 
       <div className="grid sm:grid-cols-2 gap-4">
-        <Column label="TF-IDF (words)" accent="bg-gray-400" barColor="bg-gray-400" data={data?.tfidf ?? null} winner={tfidfWins} done={!!data} />
-        <Column label="Semantic (meaning)" accent="bg-blue-500" barColor="bg-blue-500" data={data?.semantic ?? null} winner={semanticWins} done={!!data} />
+        <Column label="TF-IDF (words)" accent="bg-neutral-500" barColor="bg-neutral-500" data={data?.tfidf ?? null} winner={tfidfWins} done={!!data} />
+        <Column label="Semantic (meaning)" accent="bg-emerald-400" barColor="bg-emerald-400" data={data?.semantic ?? null} winner={semanticWins} done={!!data} />
       </div>
 
       {data && (

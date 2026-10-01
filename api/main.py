@@ -5,7 +5,25 @@ load_dotenv()
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import module_01, module_02, module_03, module_04, module_05, module_06, module_07, module_08, module_09
+from .routers import (
+    module_01,
+    module_02,
+    module_03,
+    module_04,
+    module_05,
+    module_06,
+    module_07,
+    module_08,
+    module_09,
+    module_10,
+    module_11,
+    module_12,
+    module_13,
+    module_14,
+    module_15,
+    module_16,
+    module_17,
+)
 
 app = FastAPI(title="AI Learning Curriculum API")
 
@@ -31,3 +49,11 @@ app.include_router(module_06.router)
 app.include_router(module_07.router)
 app.include_router(module_08.router)
 app.include_router(module_09.router)
+app.include_router(module_10.router)
+app.include_router(module_11.router)
+app.include_router(module_12.router)
+app.include_router(module_13.router)
+app.include_router(module_14.router)
+app.include_router(module_15.router)
+app.include_router(module_16.router)
+app.include_router(module_17.router)

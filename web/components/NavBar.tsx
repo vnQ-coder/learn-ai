@@ -13,6 +13,14 @@ const MODULES = [
   { slug: "07-tool-use", num: "07" },
   { slug: "08-agent-negotiation", num: "08" },
   { slug: "09-shared-knowledge", num: "09" },
+  { slug: "10-multi-agent-orchestration", num: "10" },
+  { slug: "11-observability-tracing", num: "11" },
+  { slug: "12-human-feedback-loop", num: "12" },
+  { slug: "13-react-architecture", num: "13" },
+  { slug: "14-plan-and-execute", num: "14" },
+  { slug: "15-langchain-pipeline", num: "15" },
+  { slug: "16-langgraph-pipeline", num: "16" },
+  { slug: "17-knowledge-graph", num: "17" },
 ];
 
 export function NavBar() {

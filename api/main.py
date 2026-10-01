@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from .routers import module_01
+
 app = FastAPI(title="AI Learning Curriculum API")
 
 app.add_middleware(
@@ -17,5 +19,4 @@ def health():
 
 
 # Router registrations are added here, one line per router task:
-# from .routers import module_01
-# app.include_router(module_01.router)
+app.include_router(module_01.router)

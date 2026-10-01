@@ -4,7 +4,7 @@ from contextlib import redirect_stdout
 from typing import Optional
 
 from fastapi import APIRouter, Header, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from ..module_loader import load_module
 
@@ -13,7 +13,7 @@ _mod = load_module("03-memory-short-term")
 
 
 class ConversationRequest(BaseModel):
-    window_size: int
+    window_size: int = Field(ge=1, le=50)
 
 
 class ConversationResponse(BaseModel):

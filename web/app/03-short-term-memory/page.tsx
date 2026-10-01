@@ -102,7 +102,7 @@ export default function Page() {
       <button
         onClick={runBoth}
         disabled={loading !== null}
-        className="bg-emerald-400 text-black rounded-full px-6 py-2.5 font-medium disabled:opacity-50 mb-6 hover:bg-emerald-300 transition-colors"
+        className="bg-teal-300 text-black glow-mint-sm rounded-full px-6 py-2.5 font-medium disabled:opacity-50 mb-6 hover:bg-teal-200 transition-colors"
       >
         {loading === "both" ? "Running both..." : "▶ Run both conversations"}
       </button>
@@ -110,7 +110,7 @@ export default function Page() {
       <div className="grid md:grid-cols-2 gap-6 border-t border-neutral-800 pt-6">
         <div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wide">window_size=10 (remembers)</span>
+            <span className="text-xs font-semibold text-teal-300 uppercase tracking-wide">window_size=10 (remembers)</span>
             <button
               onClick={() => run(10, "10")}
               disabled={loading !== null}

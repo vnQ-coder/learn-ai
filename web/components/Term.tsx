@@ -11,7 +11,7 @@ export function Term({ term, children }: { term: GlossaryKey; children: React.Re
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="underline decoration-dotted decoration-emerald-500/60 underline-offset-2 text-emerald-300 font-medium"
+        className="underline decoration-dotted decoration-teal-400/60 underline-offset-2 text-teal-200 font-medium"
         aria-expanded={open}
       >
         {children}

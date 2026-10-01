@@ -25,12 +25,12 @@ export function SourceChips({
             key={i}
             className={
               "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs " +
-              (pass ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300" : "border-neutral-800 bg-neutral-900/50 text-neutral-500")
+              (pass ? "border-teal-300/40 bg-teal-300/10 text-teal-200" : "border-neutral-800 bg-neutral-900/50 text-neutral-500")
             }
             title={`${c.source} — relevance ${c.raw_vector_score.toFixed(3)}`}
           >
             📄 {filename(c.source)}
-            <span className={"font-mono " + (pass ? "text-emerald-300" : "text-neutral-600")}>
+            <span className={"font-mono " + (pass ? "text-teal-200" : "text-neutral-600")}>
               {c.raw_vector_score.toFixed(2)}
             </span>
           </span>

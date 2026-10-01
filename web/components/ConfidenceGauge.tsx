@@ -49,7 +49,7 @@ export function ConfidenceGauge({
       </svg>
       <div className="flex justify-between text-xs text-neutral-500" style={{ width }}>
         <span>
-          score: <strong className={passed ? "text-emerald-400" : "text-red-400"}>{score.toFixed(3)}</strong>
+          score: <strong className={passed ? "text-teal-300" : "text-red-400"}>{score.toFixed(3)}</strong>
         </span>
         <span>needs ≥ {threshold.toFixed(2)}</span>
       </div>

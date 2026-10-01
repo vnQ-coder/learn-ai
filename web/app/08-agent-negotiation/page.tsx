@@ -109,7 +109,7 @@ export default function Page() {
       <button
         onClick={run}
         disabled={loading}
-        className="bg-emerald-400 text-black rounded-full px-5 py-2 disabled:opacity-50 mb-2 font-medium hover:bg-emerald-300 transition-colors"
+        className="bg-teal-300 text-black glow-mint-sm rounded-full px-5 py-2 disabled:opacity-50 mb-2 font-medium hover:bg-teal-200 transition-colors"
       >
         {loading ? "Negotiating..." : "Run negotiation"}
       </button>

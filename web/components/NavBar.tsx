@@ -19,14 +19,15 @@ export function NavBar() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-30 border-b border-neutral-800/80 bg-[#0a0f0d]/90 backdrop-blur supports-[backdrop-filter]:bg-[#0a0f0d]/70">
+    <header className="sticky top-0 z-30 border-b border-white/5 bg-[#060908]/85 backdrop-blur supports-[backdrop-filter]:bg-[#060908]/70">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-4">
         <Link href="/" className="flex items-center gap-2 shrink-0 group">
-          <span className="w-7 h-7 rounded-md bg-emerald-400 text-black font-bold text-sm flex items-center justify-center group-hover:bg-emerald-300 transition-colors">
+          <span className="w-7 h-7 rounded-md bg-teal-300 text-black font-bold text-sm flex items-center justify-center glow-mint-sm group-hover:bg-teal-200 transition-colors">
             L
           </span>
           <span className="font-semibold text-neutral-100 hidden sm:inline">Learn AI</span>
-          <span className="text-[10px] uppercase tracking-wide text-emerald-400 bg-emerald-400/10 border border-emerald-400/30 rounded-full px-2 py-0.5 ml-1">
+          <span className="flex items-center gap-1 text-[10px] uppercase tracking-wide text-teal-300 bg-teal-300/10 border border-teal-300/30 rounded-full px-2 py-0.5 ml-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-teal-300 animate-pulse" />
             live
           </span>
         </Link>
@@ -42,7 +43,7 @@ export function NavBar() {
                 className={
                   "shrink-0 px-2.5 py-1.5 rounded-md text-xs font-mono transition-colors " +
                   (active
-                    ? "bg-emerald-400/15 text-emerald-300 border border-emerald-400/40"
+                    ? "bg-teal-300/15 text-teal-200 border border-teal-300/40 glow-mint-sm"
                     : "text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/60 border border-transparent")
                 }
               >

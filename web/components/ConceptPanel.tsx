@@ -7,8 +7,8 @@ export function ConceptPanel({
 }) {
   return (
     <div className="mb-6 space-y-2">
-      <div className="rounded-xl border border-emerald-400/30 bg-emerald-400/5 p-4">
-        <div className="font-semibold text-emerald-300 mb-1">💡 In plain English</div>
+      <div className="rounded-xl border border-teal-300/30 bg-teal-300/5 p-4">
+        <div className="font-semibold text-teal-200 mb-1">💡 In plain English</div>
         <div className="text-sm text-neutral-300 leading-relaxed">{plain}</div>
       </div>
       <details className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-4">
@@ -29,8 +29,8 @@ export function ResultPanel({
   children: React.ReactNode;
 }) {
   return (
-    <div className="mt-4 rounded-xl border border-emerald-400/30 bg-emerald-400/5 p-4">
-      <div className="font-semibold text-emerald-300 mb-1">{title}</div>
+    <div className="mt-4 rounded-xl border border-teal-300/30 bg-teal-300/5 p-4">
+      <div className="font-semibold text-teal-200 mb-1">{title}</div>
       <div className="text-sm text-neutral-300 leading-relaxed">{children}</div>
     </div>
   );

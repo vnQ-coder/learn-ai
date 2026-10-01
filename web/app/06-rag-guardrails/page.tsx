@@ -161,7 +161,7 @@ export default function Page() {
         <div>
           <label className="block text-xs font-medium text-neutral-500 mb-1">On-topic question</label>
           <input
-            className="w-full border border-neutral-700 bg-neutral-900 text-neutral-100 placeholder-neutral-500 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-emerald-400/60"
+            className="w-full border border-neutral-700 bg-neutral-900 text-neutral-100 placeholder-neutral-500 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-teal-300/60"
             value={topicQuestion}
             onChange={(e) => setTopicQuestion(e.target.value)}
           />
@@ -169,7 +169,7 @@ export default function Page() {
         <div>
           <label className="block text-xs font-medium text-neutral-500 mb-1">Off-topic question</label>
           <input
-            className="w-full border border-neutral-700 bg-neutral-900 text-neutral-100 placeholder-neutral-500 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-emerald-400/60"
+            className="w-full border border-neutral-700 bg-neutral-900 text-neutral-100 placeholder-neutral-500 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-teal-300/60"
             value={offTopicQuestion}
             onChange={(e) => setOffTopicQuestion(e.target.value)}
           />
@@ -179,7 +179,7 @@ export default function Page() {
       <button
         onClick={runComparison}
         disabled={loading}
-        className="bg-emerald-400 text-black rounded-full px-6 py-2.5 font-medium disabled:opacity-50 mb-6 hover:bg-emerald-300 transition-colors"
+        className="bg-teal-300 text-black glow-mint-sm rounded-full px-6 py-2.5 font-medium disabled:opacity-50 mb-6 hover:bg-teal-200 transition-colors"
       >
         {loading ? "Running both..." : "▶ Run comparison"}
       </button>

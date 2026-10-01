@@ -3,14 +3,14 @@ export type FlowNodeState = "pending" | "active" | "done" | "fail";
 
 const STATE_CLASSES: Record<FlowNodeState, string> = {
   pending: "bg-neutral-900 border-neutral-700 text-neutral-600",
-  active: "bg-emerald-400/15 border-emerald-400 text-emerald-300 animate-pulse scale-110 shadow-md shadow-emerald-400/10",
-  done: "bg-emerald-400/15 border-emerald-500 text-emerald-300",
+  active: "bg-teal-300/15 border-teal-300 text-teal-200 animate-pulse scale-110 shadow-md shadow-teal-300/10",
+  done: "bg-teal-300/15 border-teal-400 text-teal-200",
   fail: "bg-red-950/40 border-red-500 text-red-400",
 };
 
 function connectorClass(from: FlowNodeState, to: FlowNodeState): string {
   if (from === "done" && to === "active") return "flow-sweep";
-  if (from === "done" || from === "fail") return "bg-emerald-600/60";
+  if (from === "done" || from === "fail") return "bg-teal-600/60";
   return "bg-neutral-800";
 }
 

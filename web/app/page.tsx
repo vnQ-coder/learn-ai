@@ -17,12 +17,12 @@ const MODULES = [
 export default function Home() {
   return (
     <main className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
-      <div className="text-xs uppercase tracking-[0.2em] text-emerald-400/80 font-medium mb-4">
+      <div className="text-xs uppercase tracking-[0.2em] text-teal-300/80 font-medium mb-4">
         typesafe learning platform
       </div>
 
       <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
-        Learn <span className="text-emerald-400">AI</span> by running it.
+        Learn <span className="text-teal-300">AI</span> by running it.
       </h1>
 
       <p className="text-neutral-400 text-lg max-w-2xl mb-3">
@@ -30,26 +30,35 @@ export default function Home() {
         systems. Ask questions, click run, watch it happen live — get real probabilities, not
         prose.
       </p>
-      <p className="text-neutral-500 text-sm max-w-2xl mb-10">
+      <p className="text-neutral-500 text-sm max-w-2xl mb-8">
         The Gemini API key is configured on the server. Nothing to set up — just click in and
         press Run.
       </p>
 
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 mb-12 text-sm text-neutral-400 flex flex-wrap gap-x-6 gap-y-2">
+      <div className="flex flex-wrap gap-3 mb-8">
+        <Link
+          href="/01-embeddings-normal"
+          className="inline-flex items-center gap-2 bg-teal-300 text-black font-medium rounded-full px-5 py-2.5 glow-mint hover:bg-teal-200 transition-colors"
+        >
+          ✦ Start module 01
+        </Link>
+        <Link
+          href="/06-rag-guardrails"
+          className="inline-flex items-center gap-2 border border-neutral-700 bg-neutral-900/60 text-neutral-200 rounded-full px-5 py-2.5 hover:border-teal-300/40 hover:text-teal-200 transition-colors"
+        >
+          ⚡ Try the live comparison
+        </Link>
+      </div>
+
+      <div className="rounded-full border border-neutral-800 bg-neutral-900/40 px-5 py-2.5 mb-12 text-sm text-neutral-400 flex flex-wrap gap-x-6 gap-y-1 w-fit">
         <span>
-          <strong className="text-emerald-400">💡 plain-English</strong> — what you&apos;re about
-          to see and why
+          <strong className="text-teal-300">💡 plain-English</strong> — what and why
         </span>
         <span>
-          <strong className="text-neutral-200">🔧 under the hood</strong> — the real mechanism,
-          click to expand
+          <strong className="text-neutral-200">🔧 under the hood</strong> — the real mechanism
         </span>
         <span>
-          <strong className="text-emerald-400">🔍 result</strong> — what the numbers actually mean
-        </span>
-        <span>
-          <span className="underline decoration-dotted decoration-neutral-600">underlined</span> —
-          click for a definition
+          <strong className="text-teal-300">🔍 result</strong> — what the numbers mean
         </span>
       </div>
 
@@ -58,15 +67,17 @@ export default function Home() {
           <Link
             key={m.slug}
             href={`/${m.slug}`}
-            className="group relative rounded-xl border border-neutral-800 bg-neutral-900/40 p-5 hover:border-emerald-400/50 hover:bg-neutral-900/70 transition-colors"
+            className="group relative rounded-xl border border-neutral-800 panel p-5 hover:border-teal-300/50 hover:glow-mint-sm transition-all"
           >
             <div className="flex items-center justify-between mb-3">
-              <span className="text-2xl">{m.icon}</span>
-              <span className="text-[11px] font-mono text-neutral-600 group-hover:text-emerald-400 transition-colors">
+              <span className="w-9 h-9 rounded-lg bg-neutral-800/80 border border-white/5 flex items-center justify-center text-lg group-hover:border-teal-300/40 transition-colors">
+                {m.icon}
+              </span>
+              <span className="text-[11px] font-mono text-neutral-600 group-hover:text-teal-300 transition-colors">
                 {m.num}
               </span>
             </div>
-            <div className="font-semibold text-neutral-100 mb-1 group-hover:text-emerald-300 transition-colors">
+            <div className="font-semibold text-neutral-100 mb-1 group-hover:text-teal-200 transition-colors">
               {m.title}
             </div>
             <div className="text-sm text-neutral-500 leading-snug">{m.blurb}</div>

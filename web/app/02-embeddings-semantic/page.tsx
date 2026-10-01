@@ -41,11 +41,11 @@ function Column({
 }) {
   const states: FlowNodeState[] = done ? ["done", "done", "done"] : data ? ["done", "active", "pending"] : ["pending", "pending", "pending"];
   return (
-    <div className={"flex-1 min-w-0 rounded-xl border p-3 " + (winner ? "border-emerald-400/40 bg-emerald-400/5" : "border-neutral-800 bg-neutral-900/30")}>
+    <div className={"flex-1 min-w-0 rounded-xl border p-3 " + (winner ? "border-teal-300/40 bg-teal-300/5" : "border-neutral-800 bg-neutral-900/30")}>
       <div className="flex items-center gap-2 mb-2">
         <span className={"inline-block w-2 h-2 rounded-full " + accent} />
         <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wide">{label}</span>
-        {winner && <span className="text-xs text-emerald-400 font-medium ml-auto">winner</span>}
+        {winner && <span className="text-xs text-teal-300 font-medium ml-auto">winner</span>}
       </div>
       <FlowDiagram nodes={NODES} states={states} compact />
       {data && (
@@ -113,7 +113,7 @@ export default function Page() {
 
       <div className="flex gap-2 mb-6">
         <input
-          className="flex-1 border border-neutral-700 bg-neutral-900 text-neutral-100 placeholder-neutral-500 rounded-full px-4 py-2 focus:outline-none focus:border-emerald-400/60"
+          className="flex-1 border border-neutral-700 bg-neutral-900 text-neutral-100 placeholder-neutral-500 rounded-full px-4 py-2 focus:outline-none focus:border-teal-300/60"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && !loading && run()}
@@ -121,7 +121,7 @@ export default function Page() {
         <button
           onClick={run}
           disabled={loading}
-          className="bg-emerald-400 text-black rounded-full px-6 py-2 font-medium disabled:opacity-50 hover:bg-emerald-300 transition-colors"
+          className="bg-teal-300 text-black glow-mint-sm rounded-full px-6 py-2 font-medium disabled:opacity-50 hover:bg-teal-200 transition-colors"
         >
           {loading ? "Comparing..." : "▶ Compare"}
         </button>
@@ -131,7 +131,7 @@ export default function Page() {
 
       <div className="grid sm:grid-cols-2 gap-4">
         <Column label="TF-IDF (words)" accent="bg-neutral-500" barColor="bg-neutral-500" data={data?.tfidf ?? null} winner={tfidfWins} done={!!data} />
-        <Column label="Semantic (meaning)" accent="bg-emerald-400" barColor="bg-emerald-400" data={data?.semantic ?? null} winner={semanticWins} done={!!data} />
+        <Column label="Semantic (meaning)" accent="bg-teal-300" barColor="bg-teal-300" data={data?.semantic ?? null} winner={semanticWins} done={!!data} />
       </div>
 
       {data && (

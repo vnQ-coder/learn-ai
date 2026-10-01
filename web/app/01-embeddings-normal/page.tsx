@@ -34,7 +34,7 @@ export default function Page() {
             <ul className="space-y-1">
               {data.results.map((r, i) => (
                 <li key={i} className="text-sm">
-                  <span className={r.match ? "text-emerald-400 font-semibold" : "text-red-400 font-semibold"}>
+                  <span className={r.match ? "text-teal-300 font-semibold" : "text-red-400 font-semibold"}>
                     {r.match ? "MATCH" : "MISS"}
                   </span>{" "}
                   — score={r.score.toFixed(3)} — {r.text}
@@ -97,7 +97,7 @@ export default function Page() {
 
       <div className="flex gap-2 mb-2">
         <input
-          className="flex-1 border border-neutral-700 bg-neutral-900 text-neutral-100 placeholder-neutral-500 rounded-full px-4 py-2 focus:outline-none focus:border-emerald-400/60"
+          className="flex-1 border border-neutral-700 bg-neutral-900 text-neutral-100 placeholder-neutral-500 rounded-full px-4 py-2 focus:outline-none focus:border-teal-300/60"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && !loading && run()}
@@ -105,7 +105,7 @@ export default function Page() {
         <button
           onClick={run}
           disabled={loading}
-          className="bg-emerald-400 text-black font-medium rounded-full px-5 py-2 disabled:opacity-50 hover:bg-emerald-300 transition-colors"
+          className="bg-teal-300 text-black font-medium glow-mint-sm rounded-full px-5 py-2 disabled:opacity-50 hover:bg-teal-200 transition-colors"
         >
           {loading ? "…" : "Search"}
         </button>

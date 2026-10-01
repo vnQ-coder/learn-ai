@@ -54,11 +54,16 @@ def ask_stream(req: AskRequest):
         yield sse({"type": "step", "label": "retrieving", "text": "Searching your documents..."})
         retrieved = _mod.hybrid_search(req.question, _chunks, _embeddings, _bm25, _model)
         top_score = retrieved[0]["raw_vector_score"] if retrieved else None
+        chunks_payload = [
+            {"source": r["source"], "score": r["score"], "raw_vector_score": r["raw_vector_score"]}
+            for r in retrieved
+        ]
         yield sse({
             "type": "step",
             "label": "retrieved",
             "text": f"Found {len(retrieved)} chunk(s), top relevance {top_score:.3f}" if top_score is not None else "No chunks found",
             "top_raw_vector_score": top_score,
+            "chunks": chunks_payload,
         })
         yield sse({"type": "step", "label": "checking", "text": "Checking retrieval confidence before answering..."})
         try:

@@ -3,76 +3,90 @@ import { useState } from "react";
 import { streamEvents } from "@/lib/sse";
 import { ConceptPanel, ResultPanel } from "@/components/ConceptPanel";
 import { Term } from "@/components/Term";
-import { ChatThread, type Bubble } from "@/components/ChatThread";
-import { PipelineStepper } from "@/components/PipelineStepper";
+import { FlowDiagram, type FlowNodeState } from "@/components/FlowDiagram";
+import { ConfidenceGauge } from "@/components/ConfidenceGauge";
+import { SourceChips } from "@/components/SourceChips";
 
-const STAGES = ["Your question", "Searching docs", "Checking confidence", "Answer or refuse"];
+const THRESHOLD = 0.3;
 
-let seq = 0;
-const nextId = () => `b${seq++}`;
+const NODES = [
+  { id: "question", icon: "❓", label: "Your question" },
+  { id: "search", icon: "🔎", label: "Search docs" },
+  { id: "confidence", icon: "🛡️", label: "Confidence check" },
+  { id: "answer", icon: "💬", label: "Answer / refuse" },
+];
+
+type Chunk = { source: string; score: number; raw_vector_score: number };
+
+type Phase = "idle" | "searching" | "searched" | "checking" | "answered" | "refused" | "error";
 
 export default function Page() {
   const [question, setQuestion] = useState("What does this curriculum teach?");
-  const [bubbles, setBubbles] = useState<Bubble[]>([]);
-  const [stage, setStage] = useState(-1);
-  const [loading, setLoading] = useState(false);
-  const [resultNote, setResultNote] = useState<React.ReactNode | null>(null);
+  const [phase, setPhase] = useState<Phase>("idle");
+  const [chunks, setChunks] = useState<Chunk[]>([]);
+  const [topScore, setTopScore] = useState<number | null>(null);
+  const [result, setResult] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const loading = phase === "searching" || phase === "searched" || phase === "checking";
+
+  function nodeStates(): FlowNodeState[] {
+    switch (phase) {
+      case "idle":
+        return ["pending", "pending", "pending", "pending"];
+      case "searching":
+        return ["done", "active", "pending", "pending"];
+      case "searched":
+        return ["done", "done", "pending", "pending"];
+      case "checking":
+        return ["done", "done", "active", "pending"];
+      case "answered":
+        return ["done", "done", "done", "done"];
+      case "refused":
+        return ["done", "done", "done", "fail"];
+      case "error":
+        return ["done", "fail", "pending", "pending"];
+      default:
+        return ["pending", "pending", "pending", "pending"];
+    }
+  }
 
   async function run(q: string) {
-    setLoading(true);
-    setResultNote(null);
-    setStage(0);
-    setBubbles([{ id: nextId(), role: "user", body: q }]);
+    setPhase("searching");
+    setChunks([]);
+    setTopScore(null);
+    setResult(null);
+    setErrorMsg(null);
     try {
       for await (const event of streamEvents<{
         type: string;
         label?: string;
-        text?: string;
+        chunks?: Chunk[];
         top_raw_vector_score?: number | null;
         result?: string;
         message?: string;
       }>("/api/06/ask/stream", { question: q })) {
-        if (event.type === "step" && event.label === "retrieving") {
-          setStage(1);
-          setBubbles((b) => [...b, { id: nextId(), role: "step", icon: "🔎", body: event.text }]);
-        } else if (event.type === "step" && event.label === "retrieved") {
-          setBubbles((b) => [...b, { id: nextId(), role: "step", icon: "📄", body: event.text }]);
+        if (event.type === "step" && event.label === "retrieved") {
+          setPhase("searched");
+          setChunks(event.chunks ?? []);
+          setTopScore(event.top_raw_vector_score ?? null);
         } else if (event.type === "step" && event.label === "checking") {
-          setStage(2);
-          setBubbles((b) => [...b, { id: nextId(), role: "step", icon: "🛡️", body: event.text }]);
+          setPhase("checking");
         } else if (event.type === "done") {
-          setStage(3);
           const refused = (event.result ?? "").startsWith("REFUSED");
-          setBubbles((b) => [
-            ...b,
-            { id: nextId(), role: refused ? "error" : "answer", title: refused ? "Refused" : "Answer", body: event.result },
-          ]);
-          setResultNote(
-            refused ? (
-              <>
-                The relevance score was too low, so the system refused before ever generating an
-                answer. This is the guardrail working correctly — a weaker system would have
-                tried to answer anyway, confidently, from general knowledge instead of your
-                documents.
-              </>
-            ) : (
-              <>
-                The relevance score cleared the safety threshold, so the system went ahead and
-                generated a grounded answer. Try the unrelated question button to see the exact
-                opposite outcome on the same system.
-              </>
-            )
-          );
+          setPhase(refused ? "refused" : "answered");
+          setResult(event.result ?? null);
         } else if (event.type === "error") {
-          setBubbles((b) => [...b, { id: nextId(), role: "error", icon: "⚠️", body: event.message }]);
+          setPhase("error");
+          setErrorMsg(event.message ?? "Something went wrong");
         }
       }
     } catch (e) {
-      setBubbles((b) => [...b, { id: nextId(), role: "error", icon: "⚠️", body: (e as Error).message }]);
-    } finally {
-      setLoading(false);
+      setPhase("error");
+      setErrorMsg((e as Error).message);
     }
   }
+
+  const passed = topScore !== null && topScore >= THRESHOLD;
 
   return (
     <main className="max-w-2xl mx-auto p-8">
@@ -84,9 +98,8 @@ export default function Page() {
           <>
             This is the safety check sitting on top of module 05. Before trusting its own
             answer, the system asks itself: &quot;did I actually find anything relevant enough
-            to answer this?&quot; If not, it refuses outright instead of making something up.
-            Try the on-topic button, then the unrelated one, and watch the system behave
-            completely differently.
+            to answer this?&quot; Watch the gauge below — if the needle lands in the red, left of
+            the threshold line, the system refuses instead of making something up.
           </>
         }
         technical={
@@ -95,14 +108,12 @@ export default function Page() {
             best-matching chunk is checked against a fixed threshold <em>before</em> the model is
             ever asked to generate an answer. Below the threshold, the request is refused
             immediately — no generation call happens at all, which both saves cost and
-            structurally prevents a <Term term="hallucination">hallucinated</Term> answer. This
-            kind of pre-generation <Term term="guardrail">guardrail</Term> is standard in
-            production RAG systems.
+            structurally prevents a <Term term="hallucination">hallucinated</Term> answer.
           </>
         }
       />
 
-      {stage >= 0 && <PipelineStepper stages={STAGES} activeIndex={stage} />}
+      <FlowDiagram nodes={NODES} states={nodeStates()} />
 
       <div className="flex gap-2 mb-2">
         <input
@@ -114,19 +125,58 @@ export default function Page() {
       </div>
       <div className="flex gap-3 mb-4">
         <button onClick={() => run(question)} disabled={loading} className="bg-black text-white rounded-full px-4 py-2 disabled:opacity-50 text-sm">
-          {loading ? "…" : "Ask on-topic question"}
+          Ask on-topic question
         </button>
         <button
           onClick={() => run("what is the best pizza topping for a party?")}
           disabled={loading}
           className="bg-gray-700 text-white rounded-full px-4 py-2 disabled:opacity-50 text-sm"
         >
-          {loading ? "…" : "Ask something unrelated"}
+          Ask something unrelated
         </button>
       </div>
 
-      <ChatThread bubbles={bubbles} />
-      {resultNote && <ResultPanel>{resultNote}</ResultPanel>}
+      {chunks.length > 0 && (
+        <>
+          <div className="text-sm text-gray-600 mb-1">Documents found:</div>
+          <SourceChips chunks={chunks} threshold={THRESHOLD} />
+        </>
+      )}
+
+      {topScore !== null && <ConfidenceGauge score={topScore} threshold={THRESHOLD} passed={passed} />}
+
+      {errorMsg && <p className="text-red-600 mt-2">{errorMsg}</p>}
+
+      {result && (
+        <div
+          className={
+            "mt-4 rounded-2xl border px-4 py-3 " +
+            (phase === "refused" ? "border-red-200 bg-red-50 text-red-800" : "border-gray-200 bg-white shadow-sm")
+          }
+        >
+          <div className="font-semibold text-sm mb-1">{phase === "refused" ? "Refused" : "Answer"}</div>
+          <div className="whitespace-pre-wrap">{result}</div>
+        </div>
+      )}
+
+      {(phase === "answered" || phase === "refused") && (
+        <ResultPanel>
+          {phase === "refused" ? (
+            <>
+              The gauge needle landed below the threshold line, so the system refused before
+              ever generating an answer. This is the guardrail working correctly — a weaker
+              system would have tried to answer anyway, confidently, from general knowledge
+              instead of your documents.
+            </>
+          ) : (
+            <>
+              The gauge needle cleared the threshold line, so the system trusted its retrieval
+              enough to generate a grounded answer. Try the unrelated question button to see the
+              exact opposite outcome on the same system.
+            </>
+          )}
+        </ResultPanel>
+      )}
     </main>
   );
 }

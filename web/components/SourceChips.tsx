@@ -4,11 +4,21 @@ function filename(path: string): string {
   return path.split("/").pop() ?? path;
 }
 
-export function SourceChips({ chunks, threshold }: { chunks: Chunk[]; threshold: number }) {
+export function SourceChips({
+  chunks,
+  threshold,
+  limit,
+}: {
+  chunks: Chunk[];
+  threshold: number;
+  limit?: number;
+}) {
   if (chunks.length === 0) return null;
+  const shown = limit ? chunks.slice(0, limit) : chunks;
+  const hidden = chunks.length - shown.length;
   return (
     <div className="flex flex-wrap gap-1.5 my-2">
-      {chunks.map((c, i) => {
+      {shown.map((c, i) => {
         const pass = c.raw_vector_score >= threshold;
         return (
           <span
@@ -26,6 +36,7 @@ export function SourceChips({ chunks, threshold }: { chunks: Chunk[]; threshold:
           </span>
         );
       })}
+      {hidden > 0 && <span className="text-xs text-gray-400 self-center">+{hidden} more</span>}
     </div>
   );
 }

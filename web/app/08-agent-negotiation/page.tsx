@@ -4,9 +4,25 @@ import { streamEvents } from "@/lib/sse";
 import { ConceptPanel, ResultPanel } from "@/components/ConceptPanel";
 import { Term } from "@/components/Term";
 import { ChatThread, type Bubble } from "@/components/ChatThread";
-import { PipelineStepper } from "@/components/PipelineStepper";
+import { FlowDiagram, type FlowNodeState } from "@/components/FlowDiagram";
 
 const STAGES = ["Round 1", "Round 2", "Round 3", "Round 4+", "Agreement"];
+const NODES = [
+  { id: "r1", icon: "🧳", label: "Round 1" },
+  { id: "r2", icon: "💰", label: "Round 2" },
+  { id: "r3", icon: "🧳", label: "Round 3" },
+  { id: "r4", icon: "💰", label: "Round 4+" },
+  { id: "deal", icon: "🤝", label: "Agreement" },
+];
+
+function stageStates(stage: number): FlowNodeState[] {
+  return STAGES.map((_, i) => {
+    if (stage < 0) return "pending";
+    if (i < stage) return "done";
+    if (i === stage) return "active";
+    return "pending";
+  });
+}
 
 let seq = 0;
 const nextId = () => `b${seq++}`;
@@ -88,7 +104,7 @@ export default function Page() {
         }
       />
 
-      {stage >= 0 && <PipelineStepper stages={STAGES} activeIndex={stage} />}
+      {stage >= 0 && <FlowDiagram nodes={NODES} states={stageStates(stage)} />}
 
       <button onClick={run} disabled={loading} className="bg-black text-white rounded-full px-5 py-2 disabled:opacity-50 mb-2">
         {loading ? "Negotiating..." : "Run negotiation"}

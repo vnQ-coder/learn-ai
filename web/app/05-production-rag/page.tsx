@@ -4,11 +4,27 @@ import { streamEvents } from "@/lib/sse";
 import { ConceptPanel, ResultPanel } from "@/components/ConceptPanel";
 import { Term } from "@/components/Term";
 import { ChatThread, type Bubble } from "@/components/ChatThread";
-import { PipelineStepper } from "@/components/PipelineStepper";
+import { FlowDiagram, type FlowNodeState } from "@/components/FlowDiagram";
+import { TypewriterText } from "@/components/TypewriterText";
 
 type RetrievedChunk = { source: string; score: number; raw_vector_score: number };
 
-const STAGES = ["Your question", "Searching docs", "Found chunks", "Asking Gemini", "Answer"];
+const NODES = [
+  { id: "question", icon: "❓", label: "Question" },
+  { id: "search", icon: "🔎", label: "Searching" },
+  { id: "chunks", icon: "📄", label: "Chunks" },
+  { id: "gemini", icon: "🧠", label: "Gemini" },
+  { id: "answer", icon: "💬", label: "Answer" },
+];
+
+function stageStates(stage: number): FlowNodeState[] {
+  return NODES.map((_, i) => {
+    if (stage < 0) return "pending";
+    if (i < stage) return "done";
+    if (i === stage) return "active";
+    return "pending";
+  });
+}
 
 function filename(path: string): string {
   return path.split("/").pop() ?? path;
@@ -70,10 +86,13 @@ export default function Page() {
           setStage(3);
           setBubbles((b) => [...b, { id: nextId(), role: "step", icon: "🧠", body: event.text }]);
         } else if (event.type === "done") {
-          setStage(4);
+          setStage(NODES.length);
           const topScore = event.retrieved?.[0]?.raw_vector_score ?? null;
           setLastTopScore(topScore);
-          setBubbles((b) => [...b, { id: nextId(), role: "answer", title: "Answer", body: event.answer }]);
+          setBubbles((b) => [
+            ...b,
+            { id: nextId(), role: "answer", title: "Answer", body: <TypewriterText text={event.answer ?? ""} /> },
+          ]);
           setResultNote(
             topScore !== null && topScore < 0.3 ? (
               <>
@@ -131,7 +150,7 @@ export default function Page() {
         }
       />
 
-      {stage >= 0 && <PipelineStepper stages={STAGES} activeIndex={stage} />}
+      {stage >= 0 && <FlowDiagram nodes={NODES} states={stageStates(stage)} />}
 
       <div className="flex gap-2 mb-2">
         <input

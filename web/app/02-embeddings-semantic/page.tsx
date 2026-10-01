@@ -3,80 +3,100 @@ import { useState } from "react";
 import { apiPost } from "@/lib/api";
 import { ConceptPanel, ResultPanel } from "@/components/ConceptPanel";
 import { Term } from "@/components/Term";
-import { ChatThread, type Bubble } from "@/components/ChatThread";
+import { FlowDiagram, type FlowNodeState } from "@/components/FlowDiagram";
+import { TypewriterText } from "@/components/TypewriterText";
 
 type ScoredText = { text: string; score: number };
 type CompareResponse = { tfidf: ScoredText; semantic: ScoredText; better_match: boolean };
 
-let seq = 0;
-const nextId = () => `b${seq++}`;
+const NODES = [
+  { id: "query", icon: "❓", label: "Query" },
+  { id: "match", icon: "🔎", label: "Best match" },
+  { id: "score", icon: "📊", label: "Score" },
+];
+
+function ScoreBar({ score, color }: { score: number; color: string }) {
+  const pct = Math.max(0, Math.min(1, score)) * 100;
+  return (
+    <div className="h-2 rounded-full bg-gray-100 overflow-hidden my-1">
+      <div className={"h-full rounded-full transition-all duration-700 " + color} style={{ width: `${pct}%` }} />
+    </div>
+  );
+}
+
+function Column({
+  label,
+  accent,
+  barColor,
+  data,
+  winner,
+  done,
+}: {
+  label: string;
+  accent: string;
+  barColor: string;
+  data: ScoredText | null;
+  winner: boolean;
+  done: boolean;
+}) {
+  const states: FlowNodeState[] = done ? ["done", "done", "done"] : data ? ["done", "active", "pending"] : ["pending", "pending", "pending"];
+  return (
+    <div className={"flex-1 min-w-0 rounded-xl border p-3 " + (winner ? "border-green-300 bg-green-50/40" : "border-gray-200")}>
+      <div className="flex items-center gap-2 mb-2">
+        <span className={"inline-block w-2 h-2 rounded-full " + accent} />
+        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{label}</span>
+        {winner && <span className="text-xs text-green-700 font-medium ml-auto">winner</span>}
+      </div>
+      <FlowDiagram nodes={NODES} states={states} compact />
+      {data && (
+        <>
+          <div className="text-xs text-gray-500 mb-1">
+            score: <strong className="text-gray-800">{data.score.toFixed(3)}</strong>
+          </div>
+          <ScoreBar score={data.score} color={barColor} />
+          <div className="text-sm text-gray-700 mt-2">
+            <TypewriterText text={data.text} />
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 export default function Page() {
   const [query, setQuery] = useState("I was billed two times");
-  const [bubbles, setBubbles] = useState<Bubble[]>([]);
+  const [data, setData] = useState<CompareResponse | null>(null);
   const [loading, setLoading] = useState(false);
-  const [resultNote, setResultNote] = useState<React.ReactNode | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   async function run() {
     setLoading(true);
-    setResultNote(null);
-    setBubbles([{ id: nextId(), role: "user", body: query }]);
+    setError(null);
+    setData(null);
     try {
-      const data = await apiPost<CompareResponse>("/api/02/compare", { query });
-      setBubbles((b) => [
-        ...b,
-        {
-          id: nextId(),
-          role: "answer",
-          title: "TF-IDF vs Semantic",
-          body: (
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <div className="font-semibold">TF-IDF: {data.tfidf.score.toFixed(3)}</div>
-                <div className="text-gray-600">{data.tfidf.text}</div>
-              </div>
-              <div>
-                <div className="font-semibold">Semantic: {data.semantic.score.toFixed(3)}</div>
-                <div className="text-gray-600">{data.semantic.text}</div>
-              </div>
-            </div>
-          ),
-        },
-      ]);
-      setResultNote(
-        data.better_match ? (
-          <>
-            TF-IDF scored <strong>{data.tfidf.score.toFixed(3)}</strong>, semantic scored{" "}
-            <strong>{data.semantic.score.toFixed(3)}</strong> — a gap of{" "}
-            <strong>{(data.semantic.score - data.tfidf.score).toFixed(3)}</strong>. That gap is
-            the AI genuinely understanding what you meant, not just which words you used.
-          </>
-        ) : (
-          <>
-            This time both approaches landed on similar tickets — your query happened to share
-            enough words with the right answer that TF-IDF didn&apos;t need meaning to find it.
-            Try a more paraphrased question to see the gap open up.
-          </>
-        )
-      );
+      const res = await apiPost<CompareResponse>("/api/02/compare", { query });
+      setData(res);
     } catch (e) {
-      setBubbles((b) => [...b, { id: nextId(), role: "error", icon: "⚠️", body: (e as Error).message }]);
+      setError((e as Error).message);
     } finally {
       setLoading(false);
     }
   }
 
+  const semanticWins = data ? data.semantic.score > data.tfidf.score : false;
+  const tfidfWins = data ? data.tfidf.score > data.semantic.score : false;
+
   return (
-    <main className="max-w-2xl mx-auto p-8">
+    <main className="max-w-4xl mx-auto p-8">
       <h1 className="text-2xl font-bold mb-2">02 — Embeddings: Semantic</h1>
-      <p className="text-gray-600 mb-4">Scenario: the same ticket search, now using meaning instead of literal words.</p>
+      <p className="text-gray-600 mb-4">Scenario: the same ticket search, run two ways at once — old words vs. new meaning.</p>
 
       <ConceptPanel
         plain={
           <>
             This is the same support-ticket search from module 01, run twice on the same
             question — once the old way (matching words), once the modern way (matching
-            meaning). Watch the second score beat the first on a question that uses completely
+            meaning). Watch the two columns below race on a question that uses completely
             different words than the ticket it&apos;s looking for.
           </>
         }
@@ -91,20 +111,47 @@ export default function Page() {
         }
       />
 
-      <div className="flex gap-2 mb-2">
+      <div className="flex gap-2 mb-6">
         <input
           className="flex-1 border rounded-full px-4 py-2"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && !loading && run()}
         />
-        <button onClick={run} disabled={loading} className="bg-black text-white rounded-full px-5 py-2 disabled:opacity-50">
-          {loading ? "…" : "Compare"}
+        <button
+          onClick={run}
+          disabled={loading}
+          className="bg-black text-white rounded-full px-6 py-2 font-medium disabled:opacity-50 hover:bg-gray-800 transition-colors"
+        >
+          {loading ? "Comparing..." : "▶ Compare"}
         </button>
       </div>
 
-      <ChatThread bubbles={bubbles} />
-      {resultNote && <ResultPanel>{resultNote}</ResultPanel>}
+      {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
+
+      <div className="grid sm:grid-cols-2 gap-4">
+        <Column label="TF-IDF (words)" accent="bg-gray-400" barColor="bg-gray-400" data={data?.tfidf ?? null} winner={tfidfWins} done={!!data} />
+        <Column label="Semantic (meaning)" accent="bg-blue-500" barColor="bg-blue-500" data={data?.semantic ?? null} winner={semanticWins} done={!!data} />
+      </div>
+
+      {data && (
+        <ResultPanel>
+          {data.better_match ? (
+            <>
+              TF-IDF scored <strong>{data.tfidf.score.toFixed(3)}</strong>, semantic scored{" "}
+              <strong>{data.semantic.score.toFixed(3)}</strong> — a gap of{" "}
+              <strong>{(data.semantic.score - data.tfidf.score).toFixed(3)}</strong>. That gap is
+              the AI genuinely understanding what you meant, not just which words you used.
+            </>
+          ) : (
+            <>
+              This time both approaches landed on similar tickets — your query happened to share
+              enough words with the right answer that TF-IDF didn&apos;t need meaning to find it.
+              Try a more paraphrased question to see the gap open up.
+            </>
+          )}
+        </ResultPanel>
+      )}
     </main>
   );
 }

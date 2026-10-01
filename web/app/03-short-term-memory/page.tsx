@@ -4,9 +4,19 @@ import { streamEvents } from "@/lib/sse";
 import { ConceptPanel, ResultPanel } from "@/components/ConceptPanel";
 import { Term } from "@/components/Term";
 import { ChatThread, type Bubble } from "@/components/ChatThread";
-import { PipelineStepper } from "@/components/PipelineStepper";
+import { FlowDiagram, type FlowNodeState } from "@/components/FlowDiagram";
 
 const STAGES = ["Turn 1", "Turn 2", "Turn 3", "Turn 4", "Turn 5 (the test)"];
+const NODES = STAGES.map((label, i) => ({ id: `t${i}`, icon: "💬", label }));
+
+function stageStates(stage: number): FlowNodeState[] {
+  return STAGES.map((_, i) => {
+    if (stage < 0) return "pending";
+    if (i < stage) return "done";
+    if (i === stage) return "active";
+    return "pending";
+  });
+}
 
 let seq = 0;
 const nextId = () => `b${seq++}`;
@@ -16,13 +26,19 @@ export default function Page() {
   const [bubbles1, setBubbles1] = useState<Bubble[]>([]);
   const [stage10, setStage10] = useState(-1);
   const [stage1, setStage1] = useState(-1);
-  const [loading, setLoading] = useState<"10" | "1" | null>(null);
+  const [loading, setLoading] = useState<"10" | "1" | "both" | null>(null);
   const [bothRan, setBothRan] = useState(false);
 
-  async function run(windowSize: number, which: "10" | "1") {
+  async function runBoth() {
+    setLoading("both");
+    await Promise.all([run(10, "10", false), run(1, "1", false)]);
+    setLoading(null);
+  }
+
+  async function run(windowSize: number, which: "10" | "1", manageLoading = true) {
     const setBubbles = which === "10" ? setBubbles10 : setBubbles1;
     const setStage = which === "10" ? setStage10 : setStage1;
-    setLoading(which);
+    if (manageLoading) setLoading(which);
     setStage(0);
     setBubbles([]);
     let turn = 0;
@@ -52,7 +68,7 @@ export default function Page() {
     } catch (e) {
       setBubbles((b) => [...b, { id: nextId(), role: "error", icon: "⚠️", body: (e as Error).message }]);
     } finally {
-      setLoading(null);
+      if (manageLoading) setLoading(null);
     }
   }
 
@@ -83,27 +99,41 @@ export default function Page() {
         }
       />
 
-      <div className="grid md:grid-cols-2 gap-6">
+      <button
+        onClick={runBoth}
+        disabled={loading !== null}
+        className="bg-black text-white rounded-full px-6 py-2.5 font-medium disabled:opacity-50 mb-6 hover:bg-gray-800 transition-colors"
+      >
+        {loading === "both" ? "Running both..." : "▶ Run both conversations"}
+      </button>
+
+      <div className="grid md:grid-cols-2 gap-6 border-t pt-6">
         <div>
-          <button
-            onClick={() => run(10, "10")}
-            disabled={loading !== null}
-            className="bg-black text-white rounded-full px-4 py-2 disabled:opacity-50 mb-3 w-full text-sm"
-          >
-            {loading === "10" ? "Running..." : "Run with window_size=10 (remembers)"}
-          </button>
-          {stage10 >= 0 && <PipelineStepper stages={STAGES} activeIndex={stage10} />}
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold text-green-700 uppercase tracking-wide">window_size=10 (remembers)</span>
+            <button
+              onClick={() => run(10, "10")}
+              disabled={loading !== null}
+              className="text-xs text-gray-500 underline disabled:opacity-50"
+            >
+              run alone
+            </button>
+          </div>
+          {stage10 >= 0 && <FlowDiagram nodes={NODES} states={stageStates(stage10)} compact />}
           <ChatThread bubbles={bubbles10} />
         </div>
         <div>
-          <button
-            onClick={() => run(1, "1")}
-            disabled={loading !== null}
-            className="bg-black text-white rounded-full px-4 py-2 disabled:opacity-50 mb-3 w-full text-sm"
-          >
-            {loading === "1" ? "Running..." : "Run with window_size=1 (forgets)"}
-          </button>
-          {stage1 >= 0 && <PipelineStepper stages={STAGES} activeIndex={stage1} />}
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold text-red-700 uppercase tracking-wide">window_size=1 (forgets)</span>
+            <button
+              onClick={() => run(1, "1")}
+              disabled={loading !== null}
+              className="text-xs text-gray-500 underline disabled:opacity-50"
+            >
+              run alone
+            </button>
+          </div>
+          {stage1 >= 0 && <FlowDiagram nodes={NODES} states={stageStates(stage1)} compact />}
           <ChatThread bubbles={bubbles1} />
         </div>
       </div>

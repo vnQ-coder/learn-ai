@@ -4,9 +4,26 @@ import { streamEvents } from "@/lib/sse";
 import { ConceptPanel, ResultPanel } from "@/components/ConceptPanel";
 import { Term } from "@/components/Term";
 import { ChatThread, type Bubble } from "@/components/ChatThread";
-import { PipelineStepper } from "@/components/PipelineStepper";
+import { FlowDiagram, type FlowNodeState } from "@/components/FlowDiagram";
+import { TypewriterText } from "@/components/TypewriterText";
 
 const STAGES = ["Your topic", "Researcher", "Fact-checker", "Writer", "Final report"];
+const NODES = [
+  { id: "topic", icon: "❓", label: "Topic" },
+  { id: "researcher", icon: "🔎", label: "Researcher" },
+  { id: "factchecker", icon: "✅", label: "Fact-checker" },
+  { id: "writer", icon: "✍️", label: "Writer" },
+  { id: "report", icon: "📋", label: "Report" },
+];
+
+function stageStates(stage: number): FlowNodeState[] {
+  return STAGES.map((_, i) => {
+    if (stage < 0) return "pending";
+    if (i < stage) return "done";
+    if (i === stage) return "active";
+    return "pending";
+  });
+}
 
 let seq = 0;
 const nextId = () => `b${seq++}`;
@@ -46,10 +63,13 @@ export default function Page() {
           setStage(3);
           setBubbles((b) => [...b, { id: nextId(), role: "step", icon: "✍️", body: event.text }]);
         } else if (event.type === "done") {
-          setStage(4);
+          setStage(NODES.length);
           if (event.final_report) {
             setHasFinal(true);
-            setBubbles((b) => [...b, { id: nextId(), role: "answer", title: "✍️ Final report", body: event.final_report }]);
+            setBubbles((b) => [
+              ...b,
+              { id: nextId(), role: "answer", title: "✍️ Final report", body: <TypewriterText text={event.final_report ?? ""} /> },
+            ]);
           }
         } else if (event.type === "error") {
           setBubbles((b) => [...b, { id: nextId(), role: "error", icon: "⚠️", body: event.message }]);
@@ -89,7 +109,7 @@ export default function Page() {
         }
       />
 
-      {stage >= 0 && <PipelineStepper stages={STAGES} activeIndex={stage} />}
+      {stage >= 0 && <FlowDiagram nodes={NODES} states={stageStates(stage)} />}
 
       <div className="flex gap-2 mb-2">
         <input

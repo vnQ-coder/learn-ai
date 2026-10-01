@@ -4,9 +4,24 @@ import { streamEvents } from "@/lib/sse";
 import { ConceptPanel, ResultPanel } from "@/components/ConceptPanel";
 import { Term } from "@/components/Term";
 import { ChatThread, type Bubble } from "@/components/ChatThread";
-import { PipelineStepper } from "@/components/PipelineStepper";
+import { FlowDiagram, type FlowNodeState } from "@/components/FlowDiagram";
+import { TypewriterText } from "@/components/TypewriterText";
 
-const STAGES = ["Your question", "Model decides", "Tool runs", "Final answer"];
+const NODES = [
+  { id: "question", icon: "❓", label: "Question" },
+  { id: "decides", icon: "🧠", label: "Decides" },
+  { id: "tool", icon: "🔧", label: "Tool runs" },
+  { id: "answer", icon: "💬", label: "Answer" },
+];
+
+function stageStates(stage: number): FlowNodeState[] {
+  return NODES.map((_, i) => {
+    if (stage < 0) return "pending";
+    if (i < stage) return "done";
+    if (i === stage) return "active";
+    return "pending";
+  });
+}
 
 let seq = 0;
 const nextId = () => `b${seq++}`;
@@ -39,15 +54,27 @@ export default function Page() {
             setStage(2);
             setBubbles((b) => [...b, { id: nextId(), role: "step", icon: "🔧", body: text }]);
           } else if (text.startsWith("Final answer")) {
-            setStage(3);
-            setBubbles((b) => [...b, { id: nextId(), role: "answer", title: "Answer", body: text.replace(/^Final answer:\s*/, "") }]);
+            setStage(NODES.length);
+            setBubbles((b) => [
+              ...b,
+              { id: nextId(), role: "answer", title: "Answer", body: <TypewriterText text={text.replace(/^Final answer:\s*/, "")} /> },
+            ]);
           } else {
-            setBubbles((b) => [...b, { id: nextId(), role: "answer", title: "Answer", body: text.replace(/^Final answer \(no tool needed\):\s*/, "") }]);
+            setStage(NODES.length);
+            setBubbles((b) => [
+              ...b,
+              {
+                id: nextId(),
+                role: "answer",
+                title: "Answer",
+                body: <TypewriterText text={text.replace(/^Final answer \(no tool needed\):\s*/, "")} />,
+              },
+            ]);
           }
         } else if (event.type === "error") {
           setBubbles((b) => [...b, { id: nextId(), role: "error", icon: "⚠️", body: event.message }]);
         } else if (event.type === "done") {
-          setStage(3);
+          setStage(NODES.length);
           setResultNote(
             calledTool ? (
               <>
@@ -99,7 +126,7 @@ export default function Page() {
         }
       />
 
-      {stage >= 0 && <PipelineStepper stages={STAGES} activeIndex={stage} />}
+      {stage >= 0 && <FlowDiagram nodes={NODES} states={stageStates(stage)} />}
 
       <div className="flex gap-2 mb-2">
         <input

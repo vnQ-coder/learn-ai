@@ -23,7 +23,10 @@ export async function apiPost<T>(path: string, body: unknown, needsKey = false):
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new Error(err.detail ?? `Request failed: ${res.status}`);
+    const detail = err.detail;
+    const message =
+      typeof detail === "string" ? detail : Array.isArray(detail) ? JSON.stringify(detail) : res.statusText;
+    throw new Error(message || `Request failed: ${res.status}`);
   }
   return res.json();
 }

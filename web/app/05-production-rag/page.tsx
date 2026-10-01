@@ -1,37 +1,104 @@
 "use client";
 import { useState } from "react";
-import { apiPost } from "@/lib/api";
+import { streamEvents } from "@/lib/sse";
 import { ConceptPanel, ResultPanel } from "@/components/ConceptPanel";
 import { Term } from "@/components/Term";
+import { ChatThread, type Bubble } from "@/components/ChatThread";
+import { PipelineStepper } from "@/components/PipelineStepper";
 
 type RetrievedChunk = { source: string; score: number; raw_vector_score: number };
-type AskResponse = { retrieved: RetrievedChunk[]; answer: string };
+
+const STAGES = ["Your question", "Searching docs", "Found chunks", "Asking Gemini", "Answer"];
 
 function filename(path: string): string {
   return path.split("/").pop() ?? path;
 }
 
+let seq = 0;
+const nextId = () => `b${seq++}`;
+
 export default function Page() {
   const [question, setQuestion] = useState("What does this curriculum teach?");
-  const [data, setData] = useState<AskResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [bubbles, setBubbles] = useState<Bubble[]>([]);
+  const [stage, setStage] = useState(-1);
   const [loading, setLoading] = useState(false);
+  const [lastTopScore, setLastTopScore] = useState<number | null>(null);
+  const [resultNote, setResultNote] = useState<React.ReactNode | null>(null);
 
   async function run() {
     setLoading(true);
-    setError(null);
-    setData(null);
+    setResultNote(null);
+    setStage(0);
+    setBubbles([{ id: nextId(), role: "user", body: question }]);
     try {
-      setData(await apiPost<AskResponse>("/api/05/ask", { question }));
+      for await (const event of streamEvents<{
+        type: string;
+        label?: string;
+        text?: string;
+        chunks?: RetrievedChunk[];
+        retrieved?: RetrievedChunk[];
+        answer?: string;
+        message?: string;
+      }>("/api/05/ask/stream", { question })) {
+        if (event.type === "step" && event.label === "retrieving") {
+          setStage(1);
+          setBubbles((b) => [...b, { id: nextId(), role: "step", icon: "🔎", body: event.text }]);
+        } else if (event.type === "step" && event.label === "retrieved") {
+          setStage(2);
+          const chunks = event.chunks ?? [];
+          setBubbles((b) => [
+            ...b,
+            {
+              id: nextId(),
+              role: "step",
+              icon: "📄",
+              body: (
+                <>
+                  {event.text}
+                  <ul className="mt-1 text-xs text-gray-500 list-disc list-inside">
+                    {chunks.map((c, i) => (
+                      <li key={i}>
+                        relevance={c.raw_vector_score.toFixed(3)} — {filename(c.source)}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ),
+            },
+          ]);
+        } else if (event.type === "step" && event.label === "generating") {
+          setStage(3);
+          setBubbles((b) => [...b, { id: nextId(), role: "step", icon: "🧠", body: event.text }]);
+        } else if (event.type === "done") {
+          setStage(4);
+          const topScore = event.retrieved?.[0]?.raw_vector_score ?? null;
+          setLastTopScore(topScore);
+          setBubbles((b) => [...b, { id: nextId(), role: "answer", title: "Answer", body: event.answer }]);
+          setResultNote(
+            topScore !== null && topScore < 0.3 ? (
+              <>
+                The best match only scored <strong>{topScore.toFixed(3)}</strong> in relevance —
+                fairly weak. Notice the answer above said so rather than confidently making
+                something up; that&apos;s the retrieval-confidence check working as intended.
+              </>
+            ) : (
+              <>
+                The top chunk scored <strong>{topScore?.toFixed(3)}</strong> in relevance —
+                strong enough that the system trusted it. Every claim in the answer should trace
+                back to one of the sources listed above, not the model&apos;s general knowledge.
+              </>
+            )
+          );
+        } else if (event.type === "error") {
+          setBubbles((b) => [...b, { id: nextId(), role: "error", icon: "⚠️", body: event.message }]);
+        }
+      }
     } catch (e) {
-      setError((e as Error).message);
+      setBubbles((b) => [...b, { id: nextId(), role: "error", icon: "⚠️", body: (e as Error).message }]);
     } finally {
       setLoading(false);
     }
   }
-
-  const topScore = data?.retrieved[0]?.raw_vector_score;
-  const isWeak = topScore !== undefined && topScore < 0.3;
 
   return (
     <main className="max-w-2xl mx-auto p-8">
@@ -43,9 +110,8 @@ export default function Page() {
           <>
             Instead of trusting an AI&apos;s memory for facts, this makes it look up real
             documents first, then answer using only what it found — like a research assistant
-            who shows their sources instead of answering from vague recollection. Ask a
-            question and you&apos;ll see exactly which document chunks it pulled up before it
-            wrote its answer.
+            who shows their sources instead of answering from vague recollection. Watch each
+            step happen live below: searching, finding sources, then writing the answer.
           </>
         }
         technical={
@@ -59,49 +125,32 @@ export default function Page() {
             answer from its own training data. If the best match&apos;s{" "}
             <Term term="vectorScore">raw vector score</Term> falls below a confidence floor, the
             system refuses rather than risk a <Term term="hallucination">hallucination</Term> —
-            module 06 makes that refusal logic explicit.
+            module 06 makes that refusal logic explicit. Every step below is streamed live from
+            the backend the moment it actually happens, not simulated.
           </>
         }
       />
 
-      <input className="w-full border rounded px-3 py-2 mb-2" value={question} onChange={(e) => setQuestion(e.target.value)} />
-      <button onClick={run} disabled={loading} className="bg-black text-white rounded px-4 py-2 disabled:opacity-50">
-        {loading ? "Running..." : "Run RAG pipeline"}
-      </button>
-      {error && <p className="text-red-600 mt-4">{error}</p>}
-      {data && (
-        <div className="mt-4">
-          <h2 className="font-semibold mb-2">Retrieved chunks (most relevant first)</h2>
-          <ul className="space-y-1 mb-4 text-sm">
-            {data.retrieved.map((r, i) => (
-              <li key={i}>
-                relevance={r.raw_vector_score.toFixed(3)} — <span className="font-mono">{filename(r.source)}</span>
-              </li>
-            ))}
-          </ul>
-          <h2 className="font-semibold mb-2">Answer</h2>
-          <p className="border rounded p-3 bg-white whitespace-pre-wrap">{data.answer}</p>
+      {stage >= 0 && <PipelineStepper stages={STAGES} activeIndex={stage} />}
 
-          <ResultPanel>
-            {isWeak ? (
-              <>
-                The best match only scored <strong>{topScore?.toFixed(3)}</strong> in relevance
-                — fairly weak. Notice the answer above said so rather than confidently making
-                something up; that&apos;s the retrieval-confidence check working as intended,
-                not a bug.
-              </>
-            ) : (
-              <>
-                The top chunk scored <strong>{topScore?.toFixed(3)}</strong> in relevance —
-                strong enough that the system trusted it. Every claim in the answer above should
-                trace back to one of the numbered chunks listed, not the model&apos;s general
-                knowledge. That&apos;s the whole point of RAG: answers grounded in documents you
-                can actually check.
-              </>
-            )}
-          </ResultPanel>
-        </div>
-      )}
+      <div className="flex gap-2 mb-2">
+        <input
+          className="flex-1 border rounded-full px-4 py-2"
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && !loading && run()}
+        />
+        <button
+          onClick={run}
+          disabled={loading}
+          className="bg-black text-white rounded-full px-5 py-2 disabled:opacity-50"
+        >
+          {loading ? "…" : "Ask"}
+        </button>
+      </div>
+
+      <ChatThread bubbles={bubbles} />
+      {resultNote && <ResultPanel>{resultNote}</ResultPanel>}
     </main>
   );
 }

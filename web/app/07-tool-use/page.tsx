@@ -1,32 +1,76 @@
 "use client";
 import { useState } from "react";
-import { apiPost } from "@/lib/api";
+import { streamEvents } from "@/lib/sse";
 import { ConceptPanel, ResultPanel } from "@/components/ConceptPanel";
 import { Term } from "@/components/Term";
+import { ChatThread, type Bubble } from "@/components/ChatThread";
+import { PipelineStepper } from "@/components/PipelineStepper";
 
-type AskResponse = { transcript: string };
+const STAGES = ["Your question", "Model decides", "Tool runs", "Final answer"];
+
+let seq = 0;
+const nextId = () => `b${seq++}`;
 
 export default function Page() {
   const [question, setQuestion] = useState("Where is my order 7788?");
-  const [transcript, setTranscript] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [bubbles, setBubbles] = useState<Bubble[]>([]);
+  const [stage, setStage] = useState(-1);
   const [loading, setLoading] = useState(false);
+  const [resultNote, setResultNote] = useState<React.ReactNode | null>(null);
 
   async function run() {
     setLoading(true);
-    setError(null);
-    setTranscript(null);
+    setResultNote(null);
+    setStage(0);
+    setBubbles([{ id: nextId(), role: "user", body: question }]);
+    let calledTool = false;
     try {
-      const data = await apiPost<AskResponse>("/api/07/ask", { question });
-      setTranscript(data.transcript);
+      for await (const event of streamEvents<{ type: string; text?: string; message?: string }>(
+        "/api/07/ask/stream",
+        { question }
+      )) {
+        if (event.type === "step") {
+          const text = event.text ?? "";
+          if (text.startsWith("Model requested tool call")) {
+            calledTool = true;
+            setStage(1);
+            setBubbles((b) => [...b, { id: nextId(), role: "step", icon: "🧠", body: text }]);
+          } else if (text.startsWith("Tool result")) {
+            setStage(2);
+            setBubbles((b) => [...b, { id: nextId(), role: "step", icon: "🔧", body: text }]);
+          } else if (text.startsWith("Final answer")) {
+            setStage(3);
+            setBubbles((b) => [...b, { id: nextId(), role: "answer", title: "Answer", body: text.replace(/^Final answer:\s*/, "") }]);
+          } else {
+            setBubbles((b) => [...b, { id: nextId(), role: "answer", title: "Answer", body: text.replace(/^Final answer \(no tool needed\):\s*/, "") }]);
+          }
+        } else if (event.type === "error") {
+          setBubbles((b) => [...b, { id: nextId(), role: "error", icon: "⚠️", body: event.message }]);
+        } else if (event.type === "done") {
+          setStage(3);
+          setResultNote(
+            calledTool ? (
+              <>
+                The model requested a tool call rather than answering directly — you can see the
+                real data your backend returned above, and the final answer uses that real data.
+                Change the order number in the question and you&apos;ll get a different real
+                result, not a different guess.
+              </>
+            ) : (
+              <>
+                The model answered directly without calling the tool this time. Try a question
+                that clearly references an order number to see the tool-calling path trigger.
+              </>
+            )
+          );
+        }
+      }
     } catch (e) {
-      setError((e as Error).message);
+      setBubbles((b) => [...b, { id: nextId(), role: "error", icon: "⚠️", body: (e as Error).message }]);
     } finally {
       setLoading(false);
     }
   }
-
-  const calledTool = transcript?.includes("Model requested tool call");
 
   return (
     <main className="max-w-2xl mx-auto p-8">
@@ -37,8 +81,8 @@ export default function Page() {
         plain={
           <>
             Ask an AI &quot;where is my order?&quot; and it has no way to actually know — unless
-            it&apos;s allowed to check. This demo gives the AI access to a real lookup tool. Watch
-            it decide, on its own, to use that tool instead of guessing, then answer using the
+            it&apos;s allowed to check. This demo gives the AI access to a real lookup tool.
+            Watch it decide, live, to use that tool instead of guessing, then answer using the
             real result it got back.
           </>
         }
@@ -47,43 +91,30 @@ export default function Page() {
             This is <Term term="toolCalling">function/tool calling</Term>: the model is given a
             schema describing an available function (<code>get_order_status</code>), and when it
             judges that calling it would help, it emits a structured function-call request
-            instead of plain text. The backend executes that call against a real(-ish) data
-            source and feeds the result back to the model, which then writes its final answer
-            grounded in that real data. This is the same mechanism behind{" "}
-            <Term term="mcp">MCP</Term> (Model Context Protocol) and every &quot;
-            <Term term="agent">agent</Term>&quot; that can use tools — the model never actually
-            runs code itself, it only ever asks your application to run something and hands back
-            the result.
+            instead of plain text. The backend executes that call and feeds the result back to
+            the model, which writes its final answer grounded in that real data. This is the same
+            mechanism behind <Term term="mcp">MCP</Term> (Model Context Protocol) and every{" "}
+            <Term term="agent">agent</Term> that can use tools.
           </>
         }
       />
 
-      <input className="w-full border rounded px-3 py-2 mb-2" value={question} onChange={(e) => setQuestion(e.target.value)} />
-      <button onClick={run} disabled={loading} className="bg-black text-white rounded px-4 py-2 disabled:opacity-50">
-        {loading ? "Running..." : "Run"}
-      </button>
-      {error && <p className="text-red-600 mt-4">{error}</p>}
-      {transcript && (
-        <>
-          <pre className="whitespace-pre-wrap border rounded p-3 bg-white text-sm mt-4">{transcript}</pre>
-          <ResultPanel>
-            {calledTool ? (
-              <>
-                Look at the first line: the model requested a tool call rather than answering
-                directly. The line after that is the real data your backend returned. The final
-                answer uses that real data — change the order number in the question above and
-                you&apos;ll get a different real result, not a different guess.
-              </>
-            ) : (
-              <>
-                The model answered directly without calling the tool this time — it may have
-                judged the question didn&apos;t need a lookup. Try a question that clearly
-                references an order number to see the tool-calling path trigger.
-              </>
-            )}
-          </ResultPanel>
-        </>
-      )}
+      {stage >= 0 && <PipelineStepper stages={STAGES} activeIndex={stage} />}
+
+      <div className="flex gap-2 mb-2">
+        <input
+          className="flex-1 border rounded-full px-4 py-2"
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && !loading && run()}
+        />
+        <button onClick={run} disabled={loading} className="bg-black text-white rounded-full px-5 py-2 disabled:opacity-50">
+          {loading ? "…" : "Ask"}
+        </button>
+      </div>
+
+      <ChatThread bubbles={bubbles} />
+      {resultNote && <ResultPanel>{resultNote}</ResultPanel>}
     </main>
   );
 }

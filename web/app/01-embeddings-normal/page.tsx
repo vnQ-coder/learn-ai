@@ -3,31 +3,69 @@ import { useState } from "react";
 import { apiPost } from "@/lib/api";
 import { ConceptPanel, ResultPanel } from "@/components/ConceptPanel";
 import { Term } from "@/components/Term";
+import { ChatThread, type Bubble } from "@/components/ChatThread";
 
 type SearchResult = { text: string; score: number; match: boolean };
 type SearchResponse = { results: SearchResult[] };
 
+let seq = 0;
+const nextId = () => `b${seq++}`;
+
 export default function Page() {
   const [query, setQuery] = useState("I was billed two times");
-  const [results, setResults] = useState<SearchResult[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [bubbles, setBubbles] = useState<Bubble[]>([]);
   const [loading, setLoading] = useState(false);
+  const [resultNote, setResultNote] = useState<React.ReactNode | null>(null);
 
   async function run() {
     setLoading(true);
-    setError(null);
-    setResults(null);
+    setResultNote(null);
+    setBubbles([{ id: nextId(), role: "user", body: query }]);
     try {
       const data = await apiPost<SearchResponse>("/api/01/search", { query });
-      setResults(data.results);
+      const top = data.results[0];
+      setBubbles((b) => [
+        ...b,
+        {
+          id: nextId(),
+          role: "answer",
+          title: "TF-IDF results",
+          body: (
+            <ul className="space-y-1">
+              {data.results.map((r, i) => (
+                <li key={i} className="text-sm">
+                  <span className={r.match ? "text-green-700 font-semibold" : "text-red-600 font-semibold"}>
+                    {r.match ? "MATCH" : "MISS"}
+                  </span>{" "}
+                  — score={r.score.toFixed(3)} — {r.text}
+                </li>
+              ))}
+            </ul>
+          ),
+        },
+      ]);
+      setResultNote(
+        top && top.score < 0.05 ? (
+          <>
+            The top result scored <strong>{top.score.toFixed(3)}</strong> — essentially zero.
+            The search found no shared words between your query and this ticket, so it has no
+            basis at all for ranking it higher than any other ticket. Try module 02 with the
+            exact same query to see semantic search find the right ticket anyway.
+          </>
+        ) : (
+          <>
+            The top result scored <strong>{top?.score.toFixed(3)}</strong>, meaning your query
+            shared enough literal words with that ticket for TF-IDF to find it. Try a more
+            paraphrased query to see this approach fail instead.
+          </>
+        )
+      );
     } catch (e) {
-      setError((e as Error).message);
+      setBubbles((b) => [...b, { id: nextId(), role: "error", icon: "⚠️", body: (e as Error).message }]);
     } finally {
       setLoading(false);
     }
   }
-
-  const top = results?.[0];
 
   return (
     <main className="max-w-2xl mx-auto p-8">
@@ -57,48 +95,20 @@ export default function Page() {
         }
       />
 
-      <input
-        className="w-full border rounded px-3 py-2 mb-2"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
-      <button onClick={run} disabled={loading} className="bg-black text-white rounded px-4 py-2 disabled:opacity-50">
-        {loading ? "Running..." : "Run TF-IDF search"}
-      </button>
-      {error && <p className="text-red-600 mt-4">{error}</p>}
-      {results && (
-        <>
-          <ul className="mt-4 space-y-2">
-            {results.map((r, i) => (
-              <li key={i} className="border rounded p-3">
-                <span className={r.match ? "text-green-700 font-semibold" : "text-red-600 font-semibold"}>
-                  {r.match ? "MATCH" : "MISS"}
-                </span>{" "}
-                — <Term term="vectorScore">score</Term>={r.score.toFixed(3)}
-                <div className="text-sm text-gray-700">{r.text}</div>
-              </li>
-            ))}
-          </ul>
-          <ResultPanel>
-            {top && top.score < 0.05 ? (
-              <>
-                The top result scored <strong>{top.score.toFixed(3)}</strong> — essentially
-                zero. The search found no shared words between your query and this ticket, so
-                it has no basis at all for ranking it higher than any other ticket. Try module
-                02 with the exact same query to see semantic search find the right ticket
-                anyway.
-              </>
-            ) : (
-              <>
-                The top result scored <strong>{top?.score.toFixed(3)}</strong>, meaning your
-                query shared enough literal words with that ticket for TF-IDF to find it. Try a
-                more paraphrased query (different words, same meaning) to see this approach
-                fail instead.
-              </>
-            )}
-          </ResultPanel>
-        </>
-      )}
+      <div className="flex gap-2 mb-2">
+        <input
+          className="flex-1 border rounded-full px-4 py-2"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && !loading && run()}
+        />
+        <button onClick={run} disabled={loading} className="bg-black text-white rounded-full px-5 py-2 disabled:opacity-50">
+          {loading ? "…" : "Search"}
+        </button>
+      </div>
+
+      <ChatThread bubbles={bubbles} />
+      {resultNote && <ResultPanel>{resultNote}</ResultPanel>}
     </main>
   );
 }

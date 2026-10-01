@@ -2,9 +2,11 @@ import os
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from ..module_loader import load_module
+from ..streaming import sse
 
 router = APIRouter(prefix="/api/09", tags=["09-shared-knowledge"])
 _mod = load_module("09-agents-shared-knowledge")
@@ -45,3 +47,56 @@ def run(req: RunRequest):
         stages=[Stage(agent=e["agent"], key=e["key"], value=e["value"]) for e in entries],
         final_report=final,
     )
+
+
+@router.post("/run/stream")
+def run_stream(req: RunRequest):
+    api_key = os.environ.get("GEMINI_API_KEY")
+
+    def gen():
+        if not api_key:
+            yield sse({"type": "error", "message": "GEMINI_API_KEY is not set on the server"})
+            return
+        try:
+            from google import genai
+            client = genai.Client(api_key=api_key)
+        except Exception as e:
+            yield sse({"type": "error", "message": str(e)})
+            return
+
+        board = _mod.Blackboard()
+
+        yield sse({"type": "step", "label": "researcher", "text": "Researcher is gathering findings..."})
+        try:
+            _mod.researcher_agent(client, board, req.topic)
+        except Exception as e:
+            yield sse({"type": "error", "message": str(e)})
+            return
+        findings = next((e["value"] for e in board.read_all() if e["key"] == "raw_findings"), "")
+        yield sse({"type": "step", "label": "researcher_done", "agent": "researcher", "text": findings})
+
+        yield sse({"type": "step", "label": "fact_checker", "text": "Fact-checker is reviewing the findings..."})
+        try:
+            _mod.fact_checker_agent(client, board)
+        except Exception as e:
+            yield sse({"type": "error", "message": str(e)})
+            return
+        verdict = next((e["value"] for e in board.read_all() if e["key"] == "verdict"), "")
+        yield sse({"type": "step", "label": "fact_checker_done", "agent": "fact_checker", "text": verdict})
+
+        yield sse({"type": "step", "label": "writer", "text": "Writer is drafting the final report..."})
+        try:
+            _mod.writer_agent(client, board, req.topic)
+        except Exception as e:
+            yield sse({"type": "error", "message": str(e)})
+            return
+
+        entries = board.read_all()
+        final = next((e["value"] for e in entries if e["key"] == "final_report"), None)
+        yield sse({
+            "type": "done",
+            "stages": [{"agent": e["agent"], "key": e["key"], "value": e["value"]} for e in entries],
+            "final_report": final,
+        })
+
+    return StreamingResponse(gen(), media_type="text/event-stream")

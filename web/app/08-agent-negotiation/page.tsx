@@ -1,31 +1,64 @@
 "use client";
 import { useState } from "react";
-import { apiPost } from "@/lib/api";
+import { streamEvents } from "@/lib/sse";
 import { ConceptPanel, ResultPanel } from "@/components/ConceptPanel";
 import { Term } from "@/components/Term";
+import { ChatThread, type Bubble } from "@/components/ChatThread";
+import { PipelineStepper } from "@/components/PipelineStepper";
 
-type NegotiateResponse = { transcript: string };
+const STAGES = ["Round 1", "Round 2", "Round 3", "Round 4+", "Agreement"];
+
+let seq = 0;
+const nextId = () => `b${seq++}`;
 
 export default function Page() {
-  const [transcript, setTranscript] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [bubbles, setBubbles] = useState<Bubble[]>([]);
+  const [stage, setStage] = useState(-1);
   const [loading, setLoading] = useState(false);
+  const [rounds, setRounds] = useState(0);
 
   async function run() {
     setLoading(true);
-    setError(null);
-    setTranscript(null);
+    setStage(0);
+    setBubbles([]);
+    let roundCount = 0;
     try {
-      const data = await apiPost<NegotiateResponse>("/api/08/negotiate", {});
-      setTranscript(data.transcript);
+      for await (const event of streamEvents<{ type: string; text?: string; message?: string }>(
+        "/api/08/negotiate/stream",
+        {}
+      )) {
+        if (event.type === "step") {
+          const text = event.text ?? "";
+          const match = text.match(/^Round (\d+):/);
+          if (match) {
+            roundCount = Math.max(roundCount, parseInt(match[1], 10));
+            setStage(Math.min(roundCount - 1, STAGES.length - 2));
+          }
+          if (text.startsWith("Agreement reached")) {
+            setStage(STAGES.length - 1);
+            setBubbles((b) => [...b, { id: nextId(), role: "answer", title: "Agreement", body: text }]);
+          } else if (text.startsWith("No agreement")) {
+            setStage(STAGES.length - 1);
+            setBubbles((b) => [...b, { id: nextId(), role: "error", icon: "⚠️", body: text }]);
+          } else {
+            const isPlanner = text.includes("TripPlanner");
+            setBubbles((b) => [
+              ...b,
+              { id: nextId(), role: isPlanner ? "user" : "step", icon: isPlanner ? "🧳" : "💰", body: text },
+            ]);
+          }
+        } else if (event.type === "error") {
+          setBubbles((b) => [...b, { id: nextId(), role: "error", icon: "⚠️", body: event.message }]);
+        } else if (event.type === "done") {
+          setRounds(roundCount);
+        }
+      }
     } catch (e) {
-      setError((e as Error).message);
+      setBubbles((b) => [...b, { id: nextId(), role: "error", icon: "⚠️", body: (e as Error).message }]);
     } finally {
       setLoading(false);
     }
   }
-
-  const rounds = transcript?.match(/^Round \d+:/gm)?.length ?? 0;
 
   return (
     <main className="max-w-2xl mx-auto p-8">
@@ -41,40 +74,34 @@ export default function Page() {
             a price, the other accepts or counters, back and forth, until they agree. No human
             and, importantly, <strong>no AI model</strong> is involved in this particular demo —
             it&apos;s here to show the communication pattern underneath multi-agent systems in
-            its simplest, most predictable form, before modules that add real AI decision-making
-            on top.
+            its simplest form, before module 09 adds real AI decision-making on top.
           </>
         }
         technical={
           <>
             This demonstrates <Term term="agent">agent</Term>-to-agent (A2A) communication over
             plain HTTP: two independent local servers exchange structured JSON messages following
-            a fixed{" "}
-            <Term term="negotiationProtocol">negotiation protocol</Term> (propose → counter-offer
-            → revised-propose) until they converge or hit a round limit. Each side&apos;s logic
-            here is a simple deterministic rule (always counter at 80% down to a floor) rather
-            than an LLM decision — real multi-agent systems often mix exactly this kind of
-            protocol-level choreography with LLM-driven agents making the actual decisions at
-            each step, which is what module 09 adds.
+            a fixed <Term term="negotiationProtocol">negotiation protocol</Term> until they
+            converge or hit a round limit. Each round below streams the moment it actually
+            happens, as two genuinely separate HTTP requests complete.
           </>
         }
       />
 
-      <button onClick={run} disabled={loading} className="bg-black text-white rounded px-4 py-2 disabled:opacity-50">
+      {stage >= 0 && <PipelineStepper stages={STAGES} activeIndex={stage} />}
+
+      <button onClick={run} disabled={loading} className="bg-black text-white rounded-full px-5 py-2 disabled:opacity-50 mb-2">
         {loading ? "Negotiating..." : "Run negotiation"}
       </button>
-      {error && <p className="text-red-600 mt-4">{error}</p>}
-      {transcript && (
-        <>
-          <pre className="whitespace-pre-wrap border rounded p-3 bg-white text-sm mt-4">{transcript}</pre>
-          <ResultPanel>
-            The two agents took <strong>{rounds}</strong> round(s) to reach agreement, each one a
-            real HTTP request/response between two separate local servers — not a single program
-            just printing both sides. Run it again: the negotiation always converges the same
-            way here because the rules are fixed, but a version of this built with real AI
-            agents instead of fixed rules could reason, push back, or reject entirely.
-          </ResultPanel>
-        </>
+
+      <ChatThread bubbles={bubbles} />
+      {rounds > 0 && !loading && (
+        <ResultPanel>
+          The two agents took <strong>{rounds}</strong> round(s) to reach agreement, each one a
+          real HTTP request/response between two separate local servers. Run it again: it always
+          converges the same way here because the rules are fixed — a version built with real AI
+          agents instead could reason, push back, or reject entirely.
+        </ResultPanel>
       )}
     </main>
   );

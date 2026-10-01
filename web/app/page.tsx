@@ -67,20 +67,18 @@ export default function Home() {
           <Link
             key={m.slug}
             href={`/${m.slug}`}
-            className="group relative rounded-xl border border-neutral-800 panel p-5 hover:border-teal-300/50 hover:glow-mint-sm transition-all"
+            className="group relative rounded-2xl border border-neutral-800 panel p-6 flex flex-col items-center text-center gap-2.5 hover:border-teal-300/60 hover:glow-mint transition-all"
           >
-            <div className="flex items-center justify-between mb-3">
-              <span className="w-9 h-9 rounded-lg bg-neutral-800/80 border border-white/5 flex items-center justify-center text-lg group-hover:border-teal-300/40 transition-colors">
-                {m.icon}
-              </span>
-              <span className="text-[11px] font-mono text-neutral-600 group-hover:text-teal-300 transition-colors">
-                {m.num}
-              </span>
-            </div>
-            <div className="font-semibold text-neutral-100 mb-1 group-hover:text-teal-200 transition-colors">
+            <span className="absolute top-3 right-4 text-[11px] font-mono text-neutral-700 group-hover:text-teal-300/70 transition-colors">
+              {m.num}
+            </span>
+            <span className="w-12 h-12 rounded-xl bg-neutral-800/80 border border-white/5 flex items-center justify-center text-2xl group-hover:border-teal-300/40 group-hover:bg-teal-300/10 transition-colors">
+              {m.icon}
+            </span>
+            <div className="font-semibold text-neutral-100 group-hover:text-teal-200 transition-colors">
               {m.title}
             </div>
-            <div className="text-sm text-neutral-500 leading-snug">{m.blurb}</div>
+            <div className="text-sm text-neutral-500 leading-snug line-clamp-2">{m.blurb}</div>
           </Link>
         ))}
       </div>

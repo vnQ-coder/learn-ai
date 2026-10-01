@@ -4,3 +4,6 @@ __pycache__/
 *.db
 *.sqlite3
 chroma_data/
+.env
+node_modules/
+.next/

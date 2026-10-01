@@ -18,7 +18,6 @@ def health():
     return {"status": "ok"}
 
 
-# Router registrations are added here, one line per router task:
 app.include_router(module_01.router)
 app.include_router(module_02.router)
 app.include_router(module_03.router)

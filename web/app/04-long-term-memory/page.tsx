@@ -11,23 +11,32 @@ export default function Page() {
   const [rememberMsg, setRememberMsg] = useState<string | null>(null);
   const [recallResult, setRecallResult] = useState<RecallResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<"remember" | "recall" | null>(null);
 
   async function remember() {
+    setLoading("remember");
     setError(null);
+    setRememberMsg(null);
     try {
       const data = await apiPost<RememberResponse>("/api/04/remember", { fact });
       setRememberMsg(`Remembered (id=${data.id}): ${fact}`);
     } catch (e) {
       setError((e as Error).message);
+    } finally {
+      setLoading(null);
     }
   }
 
   async function recall() {
+    setLoading("recall");
     setError(null);
+    setRecallResult(null);
     try {
       setRecallResult(await apiPost<RecallResponse>("/api/04/recall", { query: question }));
     } catch (e) {
       setError((e as Error).message);
+    } finally {
+      setLoading(null);
     }
   }
 
@@ -40,7 +49,9 @@ export default function Page() {
         <label className="block text-sm font-medium mb-1">Teach me a fact</label>
         <div className="flex gap-2">
           <input className="flex-1 border rounded px-3 py-2" value={fact} onChange={(e) => setFact(e.target.value)} />
-          <button onClick={remember} className="bg-black text-white rounded px-4 py-2">Remember</button>
+          <button onClick={remember} disabled={loading !== null} className="bg-black text-white rounded px-4 py-2 disabled:opacity-50">
+            {loading === "remember" ? "Remembering..." : "Remember"}
+          </button>
         </div>
         {rememberMsg && <p className="text-green-700 text-sm mt-2">{rememberMsg}</p>}
       </div>
@@ -49,7 +60,9 @@ export default function Page() {
         <label className="block text-sm font-medium mb-1">Ask a question</label>
         <div className="flex gap-2">
           <input className="flex-1 border rounded px-3 py-2" value={question} onChange={(e) => setQuestion(e.target.value)} />
-          <button onClick={recall} className="bg-black text-white rounded px-4 py-2">Recall</button>
+          <button onClick={recall} disabled={loading !== null} className="bg-black text-white rounded px-4 py-2 disabled:opacity-50">
+            {loading === "recall" ? "Recalling..." : "Recall"}
+          </button>
         </div>
         {recallResult && (
           <p className="text-sm mt-2">

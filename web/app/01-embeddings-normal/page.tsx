@@ -14,6 +14,7 @@ export default function Page() {
   async function run() {
     setLoading(true);
     setError(null);
+    setResults(null);
     try {
       const data = await apiPost<SearchResponse>("/api/01/search", { query });
       setResults(data.results);

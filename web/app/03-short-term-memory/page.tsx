@@ -10,9 +10,10 @@ export default function Page() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<"10" | "1" | null>(null);
 
-  async function run(windowSize: number, setter: (s: string) => void, which: "10" | "1") {
+  async function run(windowSize: number, setter: (s: string | null) => void, which: "10" | "1") {
     setLoading(which);
     setError(null);
+    setter(null);
     try {
       const data = await apiPost<ConversationResponse>("/api/03/conversation", { window_size: windowSize }, true);
       setter(data.transcript);
@@ -39,8 +40,18 @@ export default function Page() {
         </button>
       </div>
       {error && <p className="text-red-600 mt-2">{error}</p>}
-      {transcript10 && <pre className="whitespace-pre-wrap border rounded p-3 bg-white text-sm mb-4">{transcript10}</pre>}
-      {transcript1 && <pre className="whitespace-pre-wrap border rounded p-3 bg-white text-sm">{transcript1}</pre>}
+      {transcript10 && (
+        <div className="mb-4">
+          <h2 className="font-semibold mb-1">window_size=10 (remembers)</h2>
+          <pre className="whitespace-pre-wrap border rounded p-3 bg-white text-sm">{transcript10}</pre>
+        </div>
+      )}
+      {transcript1 && (
+        <div>
+          <h2 className="font-semibold mb-1">window_size=1 (forgets)</h2>
+          <pre className="whitespace-pre-wrap border rounded p-3 bg-white text-sm">{transcript1}</pre>
+        </div>
+      )}
     </main>
   );
 }

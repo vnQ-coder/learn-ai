@@ -14,6 +14,7 @@ export default function Page() {
   async function run() {
     setLoading(true);
     setError(null);
+    setData(null);
     try {
       setData(await apiPost<CompareResponse>("/api/02/compare", { query }));
     } catch (e) {

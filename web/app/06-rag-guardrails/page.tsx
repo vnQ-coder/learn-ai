@@ -13,6 +13,7 @@ export default function Page() {
   async function run(q: string) {
     setLoading(true);
     setError(null);
+    setData(null);
     try {
       setData(await apiPost<AskResponse>("/api/06/ask", { question: q }, true));
     } catch (e) {
@@ -30,10 +31,10 @@ export default function Page() {
       <input className="w-full border rounded px-3 py-2 mb-2" value={question} onChange={(e) => setQuestion(e.target.value)} />
       <div className="flex gap-3 mb-4">
         <button onClick={() => run(question)} disabled={loading} className="bg-black text-white rounded px-4 py-2 disabled:opacity-50">
-          Ask on-topic question
+          {loading ? "Running..." : "Ask on-topic question"}
         </button>
         <button onClick={() => run("what is the best pizza topping for a party?")} disabled={loading} className="bg-black text-white rounded px-4 py-2 disabled:opacity-50">
-          Ask something unrelated (should refuse)
+          {loading ? "Running..." : "Ask something unrelated (should refuse)"}
         </button>
       </div>
       {error && <p className="text-red-600 mt-4">{error}</p>}

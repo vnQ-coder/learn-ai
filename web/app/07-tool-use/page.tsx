@@ -13,6 +13,7 @@ export default function Page() {
   async function run() {
     setLoading(true);
     setError(null);
+    setTranscript(null);
     try {
       const data = await apiPost<AskResponse>("/api/07/ask", { question }, true);
       setTranscript(data.transcript);

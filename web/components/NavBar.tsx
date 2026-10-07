@@ -36,6 +36,7 @@ const MODULES = [
   { slug: "30-agent-skills", num: "30" },
   { slug: "31-agent-harness", num: "31" },
   { slug: "32-forward-deployed-engineer", num: "32" },
+  { slug: "33-agent-evaluation", num: "33" },
 ];
 
 export function NavBar() {

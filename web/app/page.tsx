@@ -33,6 +33,7 @@ import {
   Package,
   Cog,
   MapPin,
+  Bug,
 } from "lucide-react";
 
 const FOUNDATIONS = [
@@ -77,6 +78,7 @@ const EVALUATION = [
   { slug: "26-reranking", num: "26", icon: ArrowUpDown, title: "Reranking", blurb: "A fast first pass, then a smarter second pass that fixes the order." },
   { slug: "27-model-evaluation", num: "27", icon: ClipboardCheck, title: "Model Evaluation", blurb: "A tiny automated eval suite, scored live against Gemini." },
   { slug: "28-llm-as-judge", num: "28", icon: Scale, title: "LLM-as-Judge", blurb: "One AI scoring two answers for helpfulness, accuracy, and clarity." },
+  { slug: "33-agent-evaluation", num: "33", icon: Bug, title: "Agent Evaluation in Production", blurb: "Scoring the agent's whole trajectory — not just its final answer." },
 ];
 
 const CONCEPTS = [
